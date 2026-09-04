@@ -1692,11 +1692,11 @@
                 <button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}')">
                   ${isClosed ? '마감됨' : '🙋‍♂️ 신청'}
                 </button>
-                <button class="btn-edit-sm" title="경매 항목 수정" onclick="openEditModal('${item.id}')">
-                  <i class="fa-regular fa-pen-to-square"></i>
+                <button class="btn-edit-sm" title="경매 항목 수정" data-id="${escapeHtml(String(item.id))}" onclick="openEditModal(this.getAttribute('data-id'))">
+                  <i class="fa-regular fa-pen-to-square" style="pointer-events: none;"></i>
                 </button>
-                <button class="btn-del-sm" title="경매 삭제" onclick="deleteAuction('${item.id}')">
-                  <i class="fa-regular fa-trash-can"></i>
+                <button class="btn-del-sm" title="경매 삭제" data-id="${escapeHtml(String(item.id))}" onclick="deleteAuction(this.getAttribute('data-id'))">
+                  <i class="fa-regular fa-trash-can" style="pointer-events: none;"></i>
                 </button>
               </div>
             </td>
@@ -1853,38 +1853,73 @@
 
     // 보강 경매 수정 모달 관련 핸들러
     function openEditModal(id) {
-      const item = rawAuctions.find(a => String(a.id) === String(id));
-      if (!item) {
-        showToast('수정할 항목 정보를 찾을 수 없습니다.', 'error');
-        return;
+      try {
+        const targetId = String(id || '').trim();
+        const item = rawAuctions.find(a => String(a.id).trim() === targetId);
+        if (!item) {
+          showToast('수정할 항목 정보를 찾을 수 없습니다. (ID: ' + targetId + ')', 'error');
+          return;
+        }
+
+        document.getElementById('editId').value = item.id;
+
+        // 날짜 포맷 검증 및 설정 (YYYY-MM-DD)
+        let rawDate = String(item.date || '').trim();
+        if (rawDate.includes('.')) {
+          rawDate = rawDate.replace(/\./g, '-').replace(/\s+/g, '');
+        }
+        document.getElementById('editDate').value = rawDate;
+
+        const periodNum = parseInt(String(item.period || '').replace(/[^0-9]/g, ''), 10) || 1;
+        selectEditPeriod(periodNum);
+
+        // 교실 층수 및 호수 추출 (숫자형 타입 방지 String 변환 필수)
+        let roomStr = String(item.className || '').trim();
+        let floorVal = '2층';
+        if (roomStr.startsWith('B') || roomStr.startsWith('b')) floorVal = '지하(B층)';
+        else if (roomStr.startsWith('1')) floorVal = '1층';
+        else if (roomStr.startsWith('2')) floorVal = '2층';
+        else if (roomStr.startsWith('3')) floorVal = '3층';
+        else if (roomStr.startsWith('4')) floorVal = '4층';
+
+        document.getElementById('editFloor').value = floorVal;
+        updateEditRoomOptions();
+
+        const roomSelect = document.getElementById('editRoom');
+        if (roomSelect) {
+          let hasOption = false;
+          for (let i = 0; i < roomSelect.options.length; i++) {
+            if (roomSelect.options[i].value === roomStr) {
+              hasOption = true;
+              break;
+            }
+          }
+          if (!hasOption && roomStr) {
+            const opt = document.createElement('option');
+            opt.value = roomStr;
+            opt.textContent = roomStr;
+            roomSelect.appendChild(opt);
+          }
+          roomSelect.value = roomStr;
+        }
+
+        document.getElementById('editSubject').value = item.subject || '';
+        document.getElementById('editOriginalTeacher').value = item.originalTeacher || '';
+        document.getElementById('editReason').value = item.reason || '';
+
+        renderEditSubjectTags();
+        renderEditReasonTags();
+
+        const modal = document.getElementById('editAuctionModal');
+        if (modal) {
+          modal.classList.add('active');
+        } else {
+          showToast('수정 모달 요소를 찾을 수 없습니다.', 'error');
+        }
+      } catch (err) {
+        console.error('Error in openEditModal:', err);
+        showToast('수정 창을 여는 중 오류가 발생했습니다: ' + (err.message || err), 'error');
       }
-
-      document.getElementById('editId').value = item.id;
-      document.getElementById('editDate').value = item.date;
-
-      const periodNum = parseInt(String(item.period).replace(/[^0-9]/g, ''), 10) || 1;
-      selectEditPeriod(periodNum);
-
-      let roomStr = item.className;
-      let floorVal = '2층';
-      if (roomStr.startsWith('B')) floorVal = '지하(B층)';
-      else if (roomStr.startsWith('1')) floorVal = '1층';
-      else if (roomStr.startsWith('2')) floorVal = '2층';
-      else if (roomStr.startsWith('3')) floorVal = '3층';
-      else if (roomStr.startsWith('4')) floorVal = '4층';
-
-      document.getElementById('editFloor').value = floorVal;
-      updateEditRoomOptions();
-      document.getElementById('editRoom').value = roomStr;
-
-      document.getElementById('editSubject').value = item.subject || '';
-      document.getElementById('editOriginalTeacher').value = item.originalTeacher || '';
-      document.getElementById('editReason').value = item.reason || '';
-
-      renderEditSubjectTags();
-      renderEditReasonTags();
-
-      document.getElementById('editAuctionModal').classList.add('active');
     }
 
     function closeEditModal() {
