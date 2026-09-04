@@ -430,6 +430,20 @@
       cursor: not-allowed;
     }
 
+    .btn-edit-sm {
+      background: transparent;
+      border: none;
+      color: #0284c7;
+      cursor: pointer;
+      padding: 4px 6px;
+      font-size: 0.95rem;
+      transition: color 0.15s ease;
+    }
+
+    .btn-edit-sm:hover {
+      color: #0369a1;
+    }
+
     .btn-del-sm {
       background: transparent;
       border: none;
@@ -1048,6 +1062,109 @@
     </div>
   </div>
 
+  <!-- 보강 경매 수정 모달 (#editAuctionModal) -->
+  <div id="editAuctionModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span><i class="fa-solid fa-pen-to-square"></i> 보강 경매 수정</span>
+        <button class="btn-close-modal" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editAuctionForm" onsubmit="handleEditFormSubmit(event)">
+          <input type="hidden" id="editId">
+          <div class="form-grid-2col">
+            <!-- 좌측 컬럼 -->
+            <div>
+              <!-- 1. 날짜 지정 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">1</span> 날짜 지정</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <input type="date" id="editDate" class="form-control" required>
+              </div>
+
+              <!-- 2. 교시 선택 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">2</span> 교시 선택 (1~7교시)</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <div class="period-chips" id="editPeriodChips">
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(1)">1교시</div>
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(2)">2교시</div>
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(3)">3교시</div>
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(4)">4교시</div>
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(5)">5교시</div>
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(6)">6교시</div>
+                  <div class="period-chip edit-period-chip" onclick="selectEditPeriod(7)">7교시</div>
+                </div>
+                <input type="hidden" id="editPeriod" value="1교시">
+              </div>
+
+              <!-- 3. 교실 선택 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">3</span> 교실 선택</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <div class="class-select-grid">
+                  <select class="form-control" id="editFloor" onchange="updateEditRoomOptions()">
+                    <option value="4층">4층</option>
+                    <option value="3층">3층</option>
+                    <option value="2층" selected>2층</option>
+                    <option value="1층">1층</option>
+                    <option value="지하(B층)">지하(B층)</option>
+                  </select>
+                  <select class="form-control" id="editRoom">
+                  </select>
+                </div>
+              </div>
+
+              <!-- 4. 보강 교과 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">4</span> 보강 교과</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <input type="text" id="editSubject" class="form-control" placeholder="예: 국어, 수학, 영어 등" required>
+                <div class="tags-container" id="editSubjectTagsContainer"></div>
+              </div>
+            </div>
+
+            <!-- 우측 컬럼 -->
+            <div>
+              <!-- 5. 결강 교사(원교사) -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">5</span> 결강 교사(원교사)</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <input type="text" id="editOriginalTeacher" class="form-control" placeholder="예: 홍길동 (원교사 성함)" required>
+              </div>
+
+              <!-- 6. 보강 유발 사유 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">6</span> 보강 유발 사유</span>
+                  <span class="optional-txt">(선택)</span>
+                </label>
+                <input type="text" id="editReason" class="form-control" placeholder="예: 관외 출장, 연가 등">
+                <div class="tags-container" id="editReasonTagsContainer"></div>
+              </div>
+
+              <div style="margin-top: 32px;">
+                <button type="submit" id="btnSubmitEditForm" class="btn-submit-main">
+                  ✏️ 보강 경매 수정 완료
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal for Confirmation -->
   <div id="confirmModal" class="modal-overlay">
     <div class="modal-box modal-sm">
@@ -1575,6 +1692,9 @@
                 <button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}')">
                   ${isClosed ? '마감됨' : '🙋‍♂️ 신청'}
                 </button>
+                <button class="btn-edit-sm" title="경매 항목 수정" ${isClosed ? 'disabled' : ''} onclick="openEditModal('${item.id}')">
+                  <i class="fa-regular fa-pen-to-square"></i>
+                </button>
                 <button class="btn-del-sm" title="경매 삭제" onclick="deleteAuction('${item.id}')">
                   <i class="fa-regular fa-trash-can"></i>
                 </button>
@@ -1726,6 +1846,186 @@
           showToast('보강 수업 등록 완료!', 'success');
           document.getElementById('addAuctionForm').reset();
           closeAddModal();
+          renderAuctionTable();
+        }, 400);
+      }
+    }
+
+    // 보강 경매 수정 모달 관련 핸들러
+    function openEditModal(id) {
+      const item = rawAuctions.find(a => String(a.id) === String(id));
+      if (!item) {
+        showToast('수정할 항목 정보를 찾을 수 없습니다.', 'error');
+        return;
+      }
+
+      document.getElementById('editId').value = item.id;
+      document.getElementById('editDate').value = item.date;
+
+      const periodNum = parseInt(String(item.period).replace(/[^0-9]/g, ''), 10) || 1;
+      selectEditPeriod(periodNum);
+
+      let roomStr = item.className;
+      let floorVal = '2층';
+      if (roomStr.startsWith('B')) floorVal = '지하(B층)';
+      else if (roomStr.startsWith('1')) floorVal = '1층';
+      else if (roomStr.startsWith('2')) floorVal = '2층';
+      else if (roomStr.startsWith('3')) floorVal = '3층';
+      else if (roomStr.startsWith('4')) floorVal = '4층';
+
+      document.getElementById('editFloor').value = floorVal;
+      updateEditRoomOptions();
+      document.getElementById('editRoom').value = roomStr;
+
+      document.getElementById('editSubject').value = item.subject || '';
+      document.getElementById('editOriginalTeacher').value = item.originalTeacher || '';
+      document.getElementById('editReason').value = item.reason || '';
+
+      renderEditSubjectTags();
+      renderEditReasonTags();
+
+      document.getElementById('editAuctionModal').classList.add('active');
+    }
+
+    function closeEditModal() {
+      document.getElementById('editAuctionModal').classList.remove('active');
+    }
+
+    function updateEditRoomOptions() {
+      const floor = document.getElementById('editFloor').value;
+      const roomSelect = document.getElementById('editRoom');
+      if (!roomSelect) return;
+
+      roomSelect.innerHTML = '';
+      let prefix = '';
+      let end = 16;
+
+      if (floor === '지하(B층)') { prefix = 'B'; end = 14; }
+      else if (floor === '1층') { prefix = '1'; end = 15; }
+      else if (floor === '2층') { prefix = '2'; end = 16; }
+      else if (floor === '3층') { prefix = '3'; end = 16; }
+      else if (floor === '4층') { prefix = '4'; end = 16; }
+
+      for (let i = 1; i <= end; i++) {
+        const numStr = prefix + String(i).padStart(2, '0');
+        const option = document.createElement('option');
+        option.value = numStr;
+        option.textContent = numStr;
+        roomSelect.appendChild(option);
+      }
+    }
+
+    function selectEditPeriod(periodNum) {
+      const chips = document.querySelectorAll('.edit-period-chip');
+      chips.forEach((chip, idx) => {
+        if (idx === periodNum - 1) {
+          chip.classList.add('selected');
+        } else {
+          chip.classList.remove('selected');
+        }
+      });
+      document.getElementById('editPeriod').value = `${periodNum}교시`;
+    }
+
+    function renderEditReasonTags() {
+      const container = document.getElementById('editReasonTagsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      reasonTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'chip-tag';
+        chip.innerHTML = `#${escapeHtml(tag)}`;
+        chip.onclick = () => { document.getElementById('editReason').value = tag; };
+        container.appendChild(chip);
+      });
+    }
+
+    function renderEditSubjectTags() {
+      const container = document.getElementById('editSubjectTagsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      subjectTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'chip-tag';
+        chip.innerHTML = `#${escapeHtml(tag)}`;
+        chip.onclick = () => { document.getElementById('editSubject').value = tag; };
+        container.appendChild(chip);
+      });
+    }
+
+    function handleEditFormSubmit(e) {
+      e.preventDefault();
+
+      const idVal = document.getElementById('editId').value;
+      const dateVal = document.getElementById('editDate').value;
+      const periodVal = document.getElementById('editPeriod').value;
+      const roomVal = document.getElementById('editRoom').value;
+      const periodNum = parseInt(String(periodVal).replace(/[^0-9]/g, ''), 10) || 0;
+
+      const now = new Date();
+      const todayStr = formatDisplayDateRaw(now);
+      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      const tomorrowStr = formatDisplayDateRaw(tomorrow);
+
+      const btn = document.getElementById('btnSubmitEditForm');
+
+      if (dateVal === todayStr && periodNum >= 5) {
+        showToast('마감 시간이 초과되어 수정할 수 없습니다.', 'error');
+        return;
+      }
+
+      if (dateVal === tomorrowStr && periodNum >= 1 && periodNum <= 4) {
+        showToast('마감 시간이 초과되어 수정할 수 없습니다.', 'error');
+        return;
+      }
+
+      const record = {
+        id: idVal,
+        date: dateVal,
+        period: periodVal,
+        className: roomVal,
+        subject: document.getElementById('editSubject').value.trim(),
+        originalTeacher: document.getElementById('editOriginalTeacher').value.trim(),
+        reason: document.getElementById('editReason').value.trim()
+      };
+
+      btn.disabled = true;
+      btn.innerText = '수정 처리 중...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.innerText = '✏️ 보강 경매 수정 완료';
+            if (res.success) {
+              showToast(res.message, 'success');
+              closeEditModal();
+              loadAllData();
+            } else {
+              showToast(res.message, 'error');
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.innerText = '✏️ 보강 경매 수정 완료';
+            onApiError(err);
+          })
+          .updateAuctionRecord(record);
+      } else {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerText = '✏️ 보강 경매 수정 완료';
+          const target = rawAuctions.find(a => String(a.id) === String(idVal));
+          if (target) {
+            target.date = record.date;
+            target.period = record.period;
+            target.className = record.className;
+            target.subject = record.subject;
+            target.originalTeacher = record.originalTeacher;
+            target.reason = record.reason;
+          }
+          showToast('보강 경매 항목이 수정되었습니다!', 'success');
+          closeEditModal();
           renderAuctionTable();
         }, 400);
       }

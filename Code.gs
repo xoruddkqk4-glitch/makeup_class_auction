@@ -367,6 +367,62 @@ function deleteAuctionRecord(auctionId) {
 }
 
 /**
+ * 등록자가 경매 항목을 수정합니다.
+ */
+function updateAuctionRecord(record) {
+  try {
+    if (!record.id || !record.date || !record.period || !record.className || !record.subject || !record.originalTeacher) {
+      throw new Error('필수 입력 항목(날짜, 교시, 교실, 보강교과, 결강교사)이 누락되었습니다.');
+    }
+
+    var db = getDbSpreadsheet();
+    var sheet = db.auctionSheet;
+    var data = sheet.getDataRange().getValues();
+
+    var formattedDate = formatDateString(record.date);
+    var now = new Date();
+    var timeZone = Session.getScriptTimeZone() || 'Asia/Seoul';
+    var todayStr = Utilities.formatDate(now, timeZone, 'yyyy-MM-dd');
+    var tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+    var tomorrowStr = Utilities.formatDate(tomorrow, timeZone, 'yyyy-MM-dd');
+    var periodNum = parseInt(String(record.period).replace(/[^0-9]/g, ''), 10) || 0;
+
+    // 이미 지난 날짜 등록/수정 방지
+    if (formattedDate < todayStr) {
+      throw new Error('이미 지난 날짜의 수업으로 수정할 수 없습니다.');
+    }
+
+    // 1. 당일 5교시 ~ 7교시 제한
+    if (formattedDate === todayStr && periodNum >= 5) {
+      throw new Error('마감 시간이 초과되어 수정할 수 없습니다.');
+    }
+
+    // 2. 익일(다음날) 1교시 ~ 4교시 제한
+    if (formattedDate === tomorrowStr && periodNum >= 1 && periodNum <= 4) {
+      throw new Error('마감 시간이 초과되어 수정할 수 없습니다.');
+    }
+
+    for (var i = 1; i < data.length; i++) {
+      if (String(data[i][0]) === String(record.id)) {
+        var rowIndex = i + 1; // 1-indexed
+        sheet.getRange(rowIndex, 2).setValue(formattedDate);
+        sheet.getRange(rowIndex, 3).setValue(record.period);
+        sheet.getRange(rowIndex, 4).setValue(record.className);
+        sheet.getRange(rowIndex, 5).setValue(record.subject);
+        sheet.getRange(rowIndex, 6).setValue(record.originalTeacher);
+        sheet.getRange(rowIndex, 7).setValue(record.reason || '');
+        SpreadsheetApp.flush();
+        return { success: true, message: '보강 경매 항목이 성공적으로 수정되었습니다.' };
+      }
+    }
+    return { success: false, message: '수정할 경매 항목을 찾을 수 없습니다.' };
+  } catch (err) {
+    Logger.log('Error in updateAuctionRecord: ' + err.toString());
+    return { success: false, message: err.message || '수정 중 오류가 발생했습니다.' };
+  }
+}
+
+/**
  * 이미 확정된 전체 보강내역 조회 API (홍익-보강 알리미 연동 확인용)
  */
 function getConfirmedRecords() {
