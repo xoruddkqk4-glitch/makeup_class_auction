@@ -310,6 +310,92 @@
       box-shadow: 0 0 0 2px rgba(0, 107, 103, 0.15);
     }
 
+    /* 열별 버튼 필터 그룹 및 복수 선택 토글 스타일 */
+    .col-filter-btn-group {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      white-space: nowrap;
+    }
+
+    .btn-filter-toggle {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      padding: 3px 6px;
+      border-radius: 5px;
+      font-size: 0.725rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      transition: all 0.15s ease;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    .btn-filter-toggle:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: #334155;
+    }
+
+    /* 가능 버튼 active */
+    .btn-filter-open.active {
+      background: #d1fae5 !important;
+      border-color: #059669 !important;
+      color: #065f46 !important;
+      font-weight: 800 !important;
+      box-shadow: 0 1px 3px rgba(5, 150, 105, 0.25);
+    }
+
+    /* 마감 버튼 active */
+    .btn-filter-closed.active {
+      background: #fee2e2 !important;
+      border-color: #dc2626 !important;
+      color: #991b1b !important;
+      font-weight: 800 !important;
+      box-shadow: 0 1px 3px rgba(220, 38, 38, 0.25);
+    }
+
+    /* 신청 버튼 active */
+    .btn-filter-apply.active {
+      background: #e6f4f1 !important;
+      border-color: #006b67 !important;
+      color: #00524f !important;
+      font-weight: 800 !important;
+      box-shadow: 0 1px 3px rgba(0, 107, 103, 0.25);
+    }
+
+    /* 신청 취소 버튼 active */
+    .btn-filter-cancel.active {
+      background: #fff7ed !important;
+      border-color: #ea580c !important;
+      color: #c2410c !important;
+      font-weight: 800 !important;
+      box-shadow: 0 1px 3px rgba(234, 88, 12, 0.25);
+    }
+
+    /* 미신청 버튼 active */
+    .btn-filter-unapplied.active {
+      background: #f1f5f9 !important;
+      border-color: #64748b !important;
+      color: #334155 !important;
+      font-weight: 800 !important;
+      box-shadow: 0 1px 3px rgba(100, 116, 139, 0.25);
+    }
+
+    /* 승인 대기 버튼 active */
+    .btn-filter-pending.active {
+      background: #fef3c7 !important;
+      border-color: #d97706 !important;
+      color: #b45309 !important;
+      font-weight: 800 !important;
+      box-shadow: 0 1px 3px rgba(217, 119, 6, 0.25);
+    }
+
     .schedule-table td {
       padding: 8px 5px;
       border: 1px solid #e2e8f0;
@@ -1020,13 +1106,7 @@
             </tr>
             <!-- 열별 개별 필터 헤더 행 -->
             <tr class="filter-header-row">
-              <th>
-                <select class="col-filter-select" id="filterColStatus" onchange="applyColumnFilters()">
-                  <option value="">전체 상태</option>
-                  <option value="open">신청 가능</option>
-                  <option value="closed">신청 마감</option>
-                </select>
-              </th>
+              <th></th>
               <th>
                 <select class="col-filter-select" id="filterColPeriod" onchange="applyColumnFilters()">
                   <option value="">전체 교시</option>
@@ -1077,12 +1157,39 @@
                   <option value="">전체 사유</option>
                 </select>
               </th>
-              <th></th>
-              <th></th>
-              <th></th>
               <th>
-                <button class="btn btn-outline btn-sm" id="btnResetFilters" style="padding: 3px 6px; font-size: 0.7rem; white-space: nowrap;" title="모든 필터 초기화" onclick="resetColumnFilters(event)">
-                  <span id="resetIcon" style="display: inline-block;"><i class="fa-solid fa-rotate-left"></i></span> 초기화
+                <div class="col-filter-btn-group">
+                  <button type="button" class="btn-filter-toggle btn-filter-open" onclick="toggleFilterButton(this)" title="신청 가능 항목만 보기">
+                    <i class="fa-solid fa-circle-check"></i> 가능
+                  </button>
+                  <button type="button" class="btn-filter-toggle btn-filter-closed" onclick="toggleFilterButton(this)" title="신청 마감 항목만 보기">
+                    <i class="fa-solid fa-lock"></i> 마감
+                  </button>
+                </div>
+              </th>
+              <th>
+                <div class="col-filter-btn-group">
+                  <button type="button" class="btn-filter-toggle btn-filter-apply" onclick="toggleFilterButton(this)" title="신청 버튼 항목만 보기">
+                    <i class="fa-solid fa-hand"></i> 신청
+                  </button>
+                  <button type="button" class="btn-filter-toggle btn-filter-cancel" onclick="toggleFilterButton(this)" title="신청 취소 버튼 항목만 보기">
+                    <i class="fa-solid fa-rotate-left"></i> 신청 취소
+                  </button>
+                </div>
+              </th>
+              <th>
+                <div class="col-filter-btn-group">
+                  <button type="button" class="btn-filter-toggle btn-filter-unapplied" onclick="toggleFilterButton(this)" title="미신청 상태만 보기">
+                    <i class="fa-regular fa-circle"></i> 미신청
+                  </button>
+                  <button type="button" class="btn-filter-toggle btn-filter-pending" onclick="toggleFilterButton(this)" title="승인 대기 상태만 보기">
+                    <i class="fa-solid fa-clock"></i> 승인 대기
+                  </button>
+                </div>
+              </th>
+              <th>
+                <button class="btn btn-outline btn-sm" id="btnResetFilters" style="padding: 3px 8px; font-size: 0.725rem; white-space: nowrap; font-weight: 700;" title="모든 필터 초기화" onclick="resetColumnFilters(event)">
+                  <span id="resetIcon" style="display: inline-block;"><i class="fa-solid fa-rotate-left"></i></span> 필터 초기화
                 </button>
               </th>
             </tr>
@@ -1724,6 +1831,12 @@
       renderAuctionTable();
     }
 
+    // 복수 선택 버튼 필터 토글
+    function toggleFilterButton(btn) {
+      if (btn) btn.classList.toggle('active');
+      renderAuctionTable();
+    }
+
     function resetColumnFilters(e) {
       const btn = (e && e.currentTarget) ? e.currentTarget : document.getElementById('btnResetFilters');
       const resetIcon = document.getElementById('resetIcon');
@@ -1742,13 +1855,17 @@
         setTimeout(() => btn.classList.remove('btn-clicked-pulse'), 350);
       }
 
-      document.getElementById('filterColStatus').value = '';
+      const fStatus = document.getElementById('filterColStatus');
+      if (fStatus) fStatus.value = '';
       document.getElementById('filterColPeriod').value = '';
       document.getElementById('filterColClass').value = '';
       document.getElementById('filterColSubject').value = '';
       document.getElementById('filterColOrigTeacher').value = '';
       document.getElementById('filterColReason').value = '';
       
+      // 모든 복수 선택 버튼 초기화 (안 눌러진 상공 상태)
+      document.querySelectorAll('.btn-filter-toggle').forEach(b => b.classList.remove('active'));
+
       renderAuctionTable();
       showToast('모든 검색 필터가 초기화되었습니다.', 'info');
     }
@@ -1761,21 +1878,54 @@
 
       updateDateLabel(startDate, endDate);
 
-      const fStatus = document.getElementById('filterColStatus').value;
+      const fStatusSelect = document.getElementById('filterColStatus');
+      const fStatus = fStatusSelect ? fStatusSelect.value : '';
       const fPeriod = document.getElementById('filterColPeriod').value;
       const fClass = document.getElementById('filterColClass').value;
       const fSubject = document.getElementById('filterColSubject').value;
       const fOrigTeacher = document.getElementById('filterColOrigTeacher').value.trim().toLowerCase();
       const fReason = document.getElementById('filterColReason').value;
 
+      // 복수 선택 버튼 필터 상태 확인
+      const statusOpenActive = document.querySelector('.btn-filter-open')?.classList.contains('active');
+      const statusClosedActive = document.querySelector('.btn-filter-closed')?.classList.contains('active');
+
+      const claimApplyActive = document.querySelector('.btn-filter-apply')?.classList.contains('active');
+      const claimCancelActive = document.querySelector('.btn-filter-cancel')?.classList.contains('active');
+
+      const academicUnappliedActive = document.querySelector('.btn-filter-unapplied')?.classList.contains('active');
+      const academicPendingActive = document.querySelector('.btn-filter-pending')?.classList.contains('active');
+
       let filtered = rawAuctions.filter(item => {
         // 날짜 기간 필터
         if (startDate && item.date < startDate) return false;
         if (endDate && item.date > endDate) return false;
 
-        // 마감 상태 필터
-        if (fStatus === 'open' && item.isClosed) return false;
-        if (fStatus === 'closed' && !item.isClosed) return false;
+        // 1. 마감 시간 / 상태 셀 버튼 필터 (가능 / 마감)
+        if (statusOpenActive && !statusClosedActive) {
+          if (item.isClosed) return false;
+        } else if (statusClosedActive && !statusOpenActive) {
+          if (!item.isClosed) return false;
+        } else if (fStatus === 'open' && item.isClosed) {
+          return false;
+        } else if (fStatus === 'closed' && !item.isClosed) {
+          return false;
+        }
+
+        // 2. 보강 신청 셀 버튼 필터 (신청 / 신청 취소)
+        const hasSubTeacher = item.substituteTeacher && String(item.substituteTeacher).trim().length > 0;
+        if (claimApplyActive && !claimCancelActive) {
+          if (hasSubTeacher) return false; // '신청' 가능 건 (미신청)
+        } else if (claimCancelActive && !claimApplyActive) {
+          if (!hasSubTeacher) return false; // '신청 취소' 가능 건 (신청완료)
+        }
+
+        // 3. 수업계 확인 셀 버튼 필터 (미신청 / 승인 대기)
+        if (academicUnappliedActive && !academicPendingActive) {
+          if (hasSubTeacher) return false; // '미신청' 뱃지 표시 건
+        } else if (academicPendingActive && !academicUnappliedActive) {
+          if (!hasSubTeacher) return false; // '승인대기' 뱃지 표시 건
+        }
 
         // 교시 필터
         if (fPeriod && item.period !== fPeriod) return false;
