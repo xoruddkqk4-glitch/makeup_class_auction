@@ -1000,20 +1000,21 @@
               <th id="th_className" class="sortable-th" style="width: 7%;" onclick="handleSort('className')" title="교실 정렬">
                 교실 <i class="fa-solid fa-sort sort-icon" id="sortIcon_className"></i>
               </th>
-              <th id="th_subject" class="sortable-th" style="width: 10%;" onclick="handleSort('subject')" title="보강 교과 정렬">
+              <th id="th_subject" class="sortable-th" style="width: 9%;" onclick="handleSort('subject')" title="보강 교과 정렬">
                 보강 교과 <i class="fa-solid fa-sort sort-icon" id="sortIcon_subject"></i>
               </th>
-              <th id="th_originalTeacher" class="sortable-th" style="width: 10%;" onclick="handleSort('originalTeacher')" title="결강 교사 정렬">
+              <th id="th_originalTeacher" class="sortable-th" style="width: 9%;" onclick="handleSort('originalTeacher')" title="결강 교사 정렬">
                 결강 교사(원교사) <i class="fa-solid fa-sort sort-icon" id="sortIcon_originalTeacher"></i>
               </th>
-              <th id="th_reason" class="sortable-th" style="width: 10%;" onclick="handleSort('reason')" title="보강 사유 정렬">
+              <th id="th_reason" class="sortable-th" style="width: 9%;" onclick="handleSort('reason')" title="보강 사유 정렬">
                 보강 사유 <i class="fa-solid fa-sort sort-icon" id="sortIcon_reason"></i>
               </th>
-              <th id="th_deadline" class="sortable-th" style="width: 12%;" onclick="handleSort('isClosed')" title="마감 상태 정렬">
+              <th id="th_deadline" class="sortable-th" style="width: 13%;" onclick="handleSort('isClosed')" title="마감 상태 정렬">
                 마감 시간 / 상태 <i class="fa-solid fa-sort sort-icon" id="sortIcon_isClosed"></i>
               </th>
-              <th style="width: 13%;">수업계 확인</th>
-              <th style="width: 19%;">보강 신청 및 작업</th>
+              <th style="width: 15%;">보강 신청</th>
+              <th style="width: 12%;">수업계 확인</th>
+              <th style="width: 7%;">작업</th>
             </tr>
             <!-- 열별 개별 필터 헤더 행 -->
             <tr class="filter-header-row">
@@ -1074,6 +1075,7 @@
                   <option value="">전체 사유</option>
                 </select>
               </th>
+              <th></th>
               <th></th>
               <th></th>
               <th>
@@ -1810,7 +1812,7 @@
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="empty-state">
+            <td colspan="10" class="empty-state">
               <i class="fa-regular fa-folder-open"></i>
               <h3 style="font-size: 1.1rem; color: #475569; margin-top: 8px;">등록되거나 검색된 보강 경매 항목이 없습니다</h3>
               <p style="margin-top: 4px; font-size: 0.85rem;">우측 상단 [+ 보강 경매 등록하기] 버튼으로 새 경매를 등록하거나 필터를 변경해 주세요.</p>
@@ -1842,6 +1844,15 @@
               </div>
             </td>
             <td>
+              <div class="table-claim-form">
+                <input type="text" id="teacher_${item.id}" class="claim-input-sm" value="${escapeHtml(subTeacher)}" placeholder="보강교사 성명" ${isClosed || subTeacher ? 'disabled' : ''}>
+                ${subTeacher
+                  ? `<button class="btn-claim-cancel-sm" ${isClosed ? 'disabled' : ''} title="보강 신청 취소" onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}', true)">신청취소</button>`
+                  : `<button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}', false)">🙋‍♂️ 신청</button>`
+                }
+              </div>
+            </td>
+            <td>
               <div class="toggle-switch-wrap">
                 <label class="toggle-switch" title="${subTeacher ? '수업계 확인 (토글 ON 시 보강 알리미로 이관)' : '보강교사 성명 입력 후 신청해주세요'}">
                   <input type="checkbox" id="academicToggle_${item.id}" ${item.academicApproval ? 'checked' : ''} ${!subTeacher ? 'disabled' : ''} onchange="onAcademicToggleChange('${item.id}', this.checked, '${escapeHtml(subTeacher)}')">
@@ -1855,12 +1866,7 @@
               </div>
             </td>
             <td>
-              <div class="table-claim-form">
-                <input type="text" id="teacher_${item.id}" class="claim-input-sm" value="${escapeHtml(subTeacher)}" placeholder="보강교사 성명" ${isClosed || subTeacher ? 'disabled' : ''}>
-                ${subTeacher
-                  ? `<button class="btn-claim-cancel-sm" ${isClosed ? 'disabled' : ''} title="보강 신청 취소" onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}', true)">신청취소</button>`
-                  : `<button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}', false)">🙋‍♂️ 신청</button>`
-                }
+              <div style="display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
                 <button class="btn-edit-sm" title="경매 항목 수정" data-id="${escapeHtml(String(item.id))}" onclick="openEditModal(this.getAttribute('data-id'))">
                   <i class="fa-regular fa-pen-to-square" style="pointer-events: none;"></i>
                 </button>
