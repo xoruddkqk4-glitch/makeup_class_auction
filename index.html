@@ -169,8 +169,8 @@
     }
 
     .btn-sm.btn-preset {
-      padding: 3px 6px !important;
-      font-size: 0.7rem !important;
+      padding: 2px 4px !important;
+      font-size: 0.6rem !important;
       letter-spacing: -0.3px;
       background: #ffffff;
       border: 1px solid #80cbc4;
@@ -835,6 +835,7 @@
             <button class="btn btn-outline btn-sm btn-preset" id="btnLastMonth" onclick="setLastMonthDate()">지난달</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnLastWeek" onclick="setLastWeekDate()">지난주</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnToday" onclick="setTodayDate()">오늘</button>
+            <button class="btn btn-outline btn-sm btn-preset" id="btnThisWeek" onclick="setThisWeekDate()">이번주</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnNextWeek" onclick="setNextWeekDate()">다음주</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnThisMonth" onclick="setThisMonthDate()">이번달</button>
             <button class="btn btn-outline btn-sm btn-preset active" id="btnAll" onclick="setAllDate()">전체 보기</button>
@@ -1488,6 +1489,21 @@
       document.getElementById('filterStartDate').value = formatDisplayDateRaw(lastMon);
       document.getElementById('filterEndDate').value = formatDisplayDateRaw(lastSun);
       setActivePresetBtn('btnLastWeek');
+      renderAuctionTable();
+    }
+
+    function setThisWeekDate() {
+      const now = new Date();
+      const day = now.getDay();
+      const diffToMon = (day === 0 ? -6 : 1 - day);
+      const mon = new Date(now);
+      mon.setDate(now.getDate() + diffToMon);
+      const sun = new Date(mon);
+      sun.setDate(mon.getDate() + 6);
+
+      document.getElementById('filterStartDate').value = formatDisplayDateRaw(mon);
+      document.getElementById('filterEndDate').value = formatDisplayDateRaw(sun);
+      setActivePresetBtn('btnThisWeek');
       renderAuctionTable();
     }
 
