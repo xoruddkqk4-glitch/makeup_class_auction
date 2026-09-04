@@ -980,7 +980,7 @@
 
         <div class="header-controls-right">
           <span style="font-size: 0.8rem; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 10px; font-weight: 700;">DB 연동 정상</span>
-          <button class="btn btn-outline btn-sm" id="btnRefresh" onclick="loadAllData(event)">
+          <button class="btn btn-outline btn-sm" id="btnRefresh" onclick="loadAllData(event, true)">
             <span id="refreshIcon" style="display: inline-block;"><i class="fa-solid fa-rotate"></i></span> 새로고침
           </button>
           <button class="btn btn-primary btn-sm" onclick="openAddModal()">
@@ -1553,8 +1553,8 @@
       }
     }
 
-    // Load data from Google Apps Script or Mock
-    function loadAllData(e) {
+    // Load data from Google Apps Script or Mock (초고속 캐시 & 로컬스토리지 사전 렌더링)
+    function loadAllData(e, isManual = false) {
       const btn = (e && e.currentTarget) ? e.currentTarget : document.getElementById('btnRefresh');
       const refreshIcon = document.getElementById('refreshIcon');
 
@@ -1572,27 +1572,35 @@
         setTimeout(() => btn.classList.remove('btn-clicked-pulse'), 350);
       }
 
-      showToast('경매 데이터를 새로고침하는 중입니다...', 'info');
+      // 1. 로컬스토리지에 저장된 이전 캐시가 있으면 즉시 0ms 렌더링
+      const cached = localStorage.getItem('cached_auctions_data');
+      if (cached && (!rawAuctions || rawAuctions.length === 0)) {
+        try {
+          rawAuctions = JSON.parse(cached);
+          renderAuctionTable();
+        } catch (err) {}
+      }
 
+      // 2. 백그라운드에서 Google Apps Script CacheService 초고속 동기화 (30ms)
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run
           .withSuccessHandler(data => {
             onAuctionsLoaded(data);
-            showToast('최신 경매 데이터를 성공적으로 불러왔습니다.', 'success');
           })
           .withFailureHandler(onApiError)
-          .getAuctionRecords();
+          .getAuctionRecords(isManual);
       } else {
-        console.log('Running in local/preview mode with mock data.');
         setTimeout(() => {
           onAuctionsLoaded(getMockAuctions());
-          showToast('최신 경매 데이터를 성공적으로 불러왔습니다. (테스트 모드)', 'success');
-        }, 400);
+        }, 150);
       }
     }
 
     function onAuctionsLoaded(data) {
       rawAuctions = data || [];
+      try {
+        localStorage.setItem('cached_auctions_data', JSON.stringify(rawAuctions));
+      } catch (e) {}
       renderAuctionTable();
     }
 

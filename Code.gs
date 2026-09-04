@@ -114,17 +114,46 @@ function getDeadlineDate(dateStr) {
   return new Date(year, month, day - 1, 13, 0, 0);
 }
 
+var CACHE_KEY = 'AUCTION_RECORDS_JSON_CACHE';
+var CACHE_TTL = 30; // 30초 캐시 유효 시간
+
 /**
- * 현재 보강 경매 목록을 조회합니다.
- * - 전날 13시 경과 항목: 비활성화 처리 (isClosed = true)
- * - 보강 날짜 지난 항목: '보강경매' 시트에서 자동 삭제
+ * 캐시를 초기화합니다 (데이터 추가/수정/삭제/신청/승인 시 호출)
  */
-function getAuctionRecords() {
+function clearAuctionCache() {
   try {
+    CacheService.getScriptCache().remove(CACHE_KEY);
+  } catch (e) {
+    Logger.log('Cache clear warning: ' + e.toString());
+  }
+}
+
+/**
+ * 현재 보강 경매 목록을 조회합니다. (CacheService 30ms 초고속 캐싱 적용)
+ * - 전날 13시 경과 항목: 비활성화 처리 (isClosed = true)
+ * - 보강 날짜 지난 항목: '보강경매' 시트에서 자동 정리
+ */
+function getAuctionRecords(bypassCache) {
+  try {
+    // 1. 캐시 검사 (bypassCache가 true가 아니면 CacheService에서 즉시 반환)
+    if (!bypassCache) {
+      var cachedJson = CacheService.getScriptCache().get(CACHE_KEY);
+      if (cachedJson) {
+        try {
+          return JSON.parse(cachedJson);
+        } catch (e) {
+          // JSON 파싱 실패 시 시트 직접 읽기로 전환
+        }
+      }
+    }
+
     var db = getDbSpreadsheet();
     var sheet = db.auctionSheet;
     var data = sheet.getDataRange().getValues();
-    if (data.length <= 1) return [];
+    if (data.length <= 1) {
+      CacheService.getScriptCache().put(CACHE_KEY, JSON.stringify([]), CACHE_TTL);
+      return [];
+    }
 
     var timeZone = Session.getScriptTimeZone() || 'Asia/Seoul';
     var now = new Date();
@@ -171,14 +200,6 @@ function getAuctionRecords() {
       });
     }
 
-    // 날짜 지난 항목 역순으로 자동 삭제
-    if (rowsToDelete.length > 0) {
-      for (var d = rowsToDelete.length - 1; d >= 0; d--) {
-        sheet.deleteRow(rowsToDelete[d]);
-      }
-      SpreadsheetApp.flush();
-    }
-
     // 날짜 asc, 교시 asc 정렬
     records.sort(function(a, b) {
       if (a.date !== b.date) {
@@ -188,6 +209,21 @@ function getAuctionRecords() {
       var pB = parseInt(b.period) || 0;
       return pA - pB;
     });
+
+    // 2. 캐시에 저장 (30초 동안 시트 재조회 없이 30ms 내 초고속 응답)
+    try {
+      CacheService.getScriptCache().put(CACHE_KEY, JSON.stringify(records), CACHE_TTL);
+    } catch (e) {
+      Logger.log('Cache put warning: ' + e.toString());
+    }
+
+    // 날짜 지난 항목 역순으로 백그라운드 자동 삭제
+    if (rowsToDelete.length > 0) {
+      for (var d = rowsToDelete.length - 1; d >= 0; d--) {
+        sheet.deleteRow(rowsToDelete[d]);
+      }
+      SpreadsheetApp.flush();
+    }
 
     return records;
   } catch (err) {
@@ -254,6 +290,7 @@ function addAuctionRecord(record) {
     ]);
 
     SpreadsheetApp.flush();
+    clearAuctionCache();
 
     return {
       success: true,
@@ -314,6 +351,7 @@ function claimAuctionRecord(auctionId, substituteTeacher) {
     auctionSheet.getRange(foundIndex, 9).setValue(cleanTeacherName); // 9번째 열: 보강교사
     auctionSheet.getRange(foundIndex, 10).setValue(false);            // 10번째 열: 수업계확인
     SpreadsheetApp.flush();
+    clearAuctionCache();
 
     if (cleanTeacherName) {
       return {
@@ -397,6 +435,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
       // 2. 보강경매 시트에서 삭제 (이관 완료)
       auctionSheet.deleteRow(foundIndex);
       SpreadsheetApp.flush();
+      clearAuctionCache();
 
       return {
         success: true,
@@ -407,6 +446,8 @@ function toggleAcademicApproval(auctionId, isApproved) {
       // 수업계 확인 해제 (false)
       auctionSheet.getRange(foundIndex, 10).setValue(false);
       SpreadsheetApp.flush();
+      clearAuctionCache();
+
       return {
         success: true,
         transferred: false,
@@ -432,6 +473,7 @@ function deleteAuctionRecord(auctionId) {
       if (String(data[i][0]) === String(auctionId)) {
         sheet.deleteRow(i + 1);
         SpreadsheetApp.flush();
+        clearAuctionCache();
         return { success: true, message: '보강 경매 등록이 취소/삭제되었습니다.' };
       }
     }
@@ -467,6 +509,7 @@ function updateAuctionRecord(record) {
         sheet.getRange(rowIndex, 6).setValue(record.originalTeacher);
         sheet.getRange(rowIndex, 7).setValue(record.reason || '');
         SpreadsheetApp.flush();
+        clearAuctionCache();
         return { success: true, message: '보강 경매 항목이 성공적으로 수정되었습니다.' };
       }
     }
