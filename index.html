@@ -1692,7 +1692,7 @@
                 <button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}')">
                   ${isClosed ? '마감됨' : '🙋‍♂️ 신청'}
                 </button>
-                <button class="btn-edit-sm" title="경매 항목 수정" ${isClosed ? 'disabled' : ''} onclick="openEditModal('${item.id}')">
+                <button class="btn-edit-sm" title="경매 항목 수정" onclick="openEditModal('${item.id}')">
                   <i class="fa-regular fa-pen-to-square"></i>
                 </button>
                 <button class="btn-del-sm" title="경매 삭제" onclick="deleteAuction('${item.id}')">
@@ -1968,16 +1968,6 @@
       const tomorrowStr = formatDisplayDateRaw(tomorrow);
 
       const btn = document.getElementById('btnSubmitEditForm');
-
-      if (dateVal === todayStr && periodNum >= 5) {
-        showToast('마감 시간이 초과되어 수정할 수 없습니다.', 'error');
-        return;
-      }
-
-      if (dateVal === tomorrowStr && periodNum >= 1 && periodNum <= 4) {
-        showToast('마감 시간이 초과되어 수정할 수 없습니다.', 'error');
-        return;
-      }
 
       const record = {
         id: idVal,

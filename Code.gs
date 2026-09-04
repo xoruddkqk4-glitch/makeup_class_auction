@@ -367,7 +367,7 @@ function deleteAuctionRecord(auctionId) {
 }
 
 /**
- * 등록자가 경매 항목을 수정합니다.
+ * 등록자가 경매 항목을 수정합니다. (마감 기한 항목도 수정 가능)
  */
 function updateAuctionRecord(record) {
   try {
@@ -380,27 +380,6 @@ function updateAuctionRecord(record) {
     var data = sheet.getDataRange().getValues();
 
     var formattedDate = formatDateString(record.date);
-    var now = new Date();
-    var timeZone = Session.getScriptTimeZone() || 'Asia/Seoul';
-    var todayStr = Utilities.formatDate(now, timeZone, 'yyyy-MM-dd');
-    var tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-    var tomorrowStr = Utilities.formatDate(tomorrow, timeZone, 'yyyy-MM-dd');
-    var periodNum = parseInt(String(record.period).replace(/[^0-9]/g, ''), 10) || 0;
-
-    // 이미 지난 날짜 등록/수정 방지
-    if (formattedDate < todayStr) {
-      throw new Error('이미 지난 날짜의 수업으로 수정할 수 없습니다.');
-    }
-
-    // 1. 당일 5교시 ~ 7교시 제한
-    if (formattedDate === todayStr && periodNum >= 5) {
-      throw new Error('마감 시간이 초과되어 수정할 수 없습니다.');
-    }
-
-    // 2. 익일(다음날) 1교시 ~ 4교시 제한
-    if (formattedDate === tomorrowStr && periodNum >= 1 && periodNum <= 4) {
-      throw new Error('마감 시간이 초과되어 수정할 수 없습니다.');
-    }
 
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][0]) === String(record.id)) {
