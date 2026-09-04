@@ -66,6 +66,19 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-date-badge {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 3px 12px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
     }
 
     /* 테이블 카드 및 통합 툴바 (홍익-보강 알리미 통일) */
@@ -759,6 +772,7 @@
     <header class="app-header">
       <h1 class="app-title">
         <i class="fa-solid fa-scale-balanced" style="color: var(--primary-color);"></i> 보강 경매 시스템
+        <span id="currentDateLabel" class="header-date-badge"></span>
       </h1>
     </header>
 
@@ -1401,6 +1415,8 @@
       const startDate = document.getElementById('filterStartDate').value;
       const endDate = document.getElementById('filterEndDate').value;
 
+      updateDateLabel(startDate, endDate);
+
       const fStatus = document.getElementById('filterColStatus').value;
       const fPeriod = document.getElementById('filterColPeriod').value;
       const fClass = document.getElementById('filterColClass').value;
@@ -1673,6 +1689,36 @@
         showToast('삭제되었습니다.', 'success');
         renderAuctionTable();
       }
+    }
+
+    function updateDateLabel(startDate, endDate) {
+      const label = document.getElementById('currentDateLabel');
+      if (!label) return;
+      if (!startDate && !endDate) {
+        label.textContent = '[ 전체 목록 ]';
+      } else if (startDate && endDate) {
+        if (startDate === endDate) {
+          label.textContent = `[ ${formatFormattedDate(startDate)} ]`;
+        } else {
+          label.textContent = `[ ${formatFormattedDate(startDate)} ~ ${formatFormattedDate(endDate)} ]`;
+        }
+      } else if (startDate) {
+        label.textContent = `[ ${formatFormattedDate(startDate)} ]`;
+      } else if (endDate) {
+        label.textContent = `[ ~ ${formatFormattedDate(endDate)} ]`;
+      }
+    }
+
+    function formatFormattedDate(dateStr) {
+      if (!dateStr) return '';
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        const dayName = days[d.getDay()];
+        return `${dateStr} (${dayName})`;
+      }
+      return dateStr;
     }
 
     // Helper: Toast Notifications
