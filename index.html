@@ -308,12 +308,13 @@
       box-shadow: 0 0 0 2px rgba(0, 107, 103, 0.15);
     }
 
-    .schedule-table td {
-      padding: 10px 8px;
+    .schedule-table th, .schedule-table td {
+      padding: 8px 5px;
       border: 1px solid #e2e8f0;
-      font-size: 0.9rem;
+      font-size: 0.825rem;
       color: var(--text-main);
       vertical-align: middle;
+      white-space: nowrap !important;
     }
 
     .schedule-table tr:nth-child(even) {
@@ -334,56 +335,64 @@
       background: #e0f2fe;
       color: #0369a1;
       border: 1px solid #bae6fd;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.825rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.775rem;
       font-weight: 700;
+      white-space: nowrap !important;
+      display: inline-block;
     }
 
     .badge-class-pill {
       background: #f1f5f9;
       color: #334155;
       border: 1px solid #cbd5e1;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.825rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.775rem;
       font-weight: 700;
+      white-space: nowrap !important;
+      display: inline-block;
     }
 
     .badge-subject-pill {
       background: #fef3c7;
       color: #92400e;
       border: 1px solid #fde68a;
-      padding: 3px 8px;
-      border-radius: 12px;
-      font-size: 0.825rem;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.775rem;
       font-weight: 700;
+      white-space: nowrap !important;
+      display: inline-block;
     }
 
     .badge-status-open {
       background: #d1fae5;
       color: #065f46;
       border: 1px solid #a7f3d0;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 10px;
-      font-size: 0.775rem;
+      font-size: 0.75rem;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 3px;
+      white-space: nowrap !important;
     }
 
     .badge-status-closed {
       background: #fee2e2;
       color: #991b1b;
       border: 1px solid #fca5a5;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 10px;
-      font-size: 0.775rem;
+      font-size: 0.75rem;
       font-weight: 700;
       display: inline-flex;
       align-items: center;
       gap: 3px;
+      white-space: nowrap !important;
     }
 
     /* 테이블 행 안에서의 보강 신청 폼 */
@@ -391,29 +400,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
+      white-space: nowrap !important;
     }
 
     .claim-input-sm {
-      padding: 4px 8px;
+      padding: 3px 6px;
       border: 1px solid #cbd5e1;
       border-radius: 4px;
-      font-size: 0.825rem;
-      width: 105px;
+      font-size: 0.775rem;
+      width: 85px;
       outline: none;
+      white-space: nowrap;
     }
 
     .claim-input-sm:focus {
       border-color: var(--primary-color);
     }
 
+    .claim-input-sm:disabled {
+      background-color: #f1f5f9;
+      color: #475569;
+      border-color: #cbd5e1;
+      cursor: not-allowed;
+      font-weight: 600;
+    }
+
     .btn-claim-sm {
       background: var(--primary-color);
       color: #ffffff;
       border: none;
-      padding: 5px 10px;
+      padding: 4px 8px;
       border-radius: 4px;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       font-weight: 700;
       cursor: pointer;
       white-space: nowrap;
@@ -427,6 +446,31 @@
     .btn-claim-sm:disabled {
       background: #cbd5e1;
       color: #64748b;
+      cursor: not-allowed;
+    }
+
+    .btn-claim-cancel-sm {
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #ffedd5;
+      padding: 3px 7px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .btn-claim-cancel-sm:hover {
+      background: #ffedd5;
+      color: #9a3412;
+    }
+
+    .btn-claim-cancel-sm:disabled {
+      background: #f1f5f9;
+      color: #94a3b8;
+      border-color: #e2e8f0;
       cursor: not-allowed;
     }
 
@@ -1787,13 +1831,15 @@
             <td><span class="badge-period">${item.period}</span></td>
             <td><span class="badge-class-pill">${escapeHtml(item.className)}호</span></td>
             <td><span class="badge-subject-pill">${escapeHtml(item.subject)}</span></td>
-            <td><span style="color: #e11d48; font-weight: 600;">${escapeHtml(item.originalTeacher)}</span></td>
-            <td>${item.reason ? `<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">${escapeHtml(item.reason)}</span>` : '-'}</td>
+            <td><span style="color: #e11d48; font-weight: 700;">${escapeHtml(item.originalTeacher)}</span></td>
+            <td>${item.reason ? `<span style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 0.775rem; font-weight: 600;">${escapeHtml(item.reason)}</span>` : '-'}</td>
             <td>
-              <div style="font-size: 0.775rem; color: var(--text-muted); margin-bottom: 2px;"><i class="fa-regular fa-clock"></i> ${item.deadlineText ? item.deadlineText : '전날 13:00'}</div>
-              ${isClosed 
-                ? `<span class="badge-status-closed"><i class="fa-solid fa-lock"></i> 신청 마감</span>` 
-                : `<span class="badge-status-open"><i class="fa-solid fa-circle-check"></i> 신청 가능</span>`}
+              <div style="display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
+                <span style="font-size: 0.725rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${item.deadlineText ? item.deadlineText : '전날 13:00'}</span>
+                ${isClosed 
+                  ? `<span class="badge-status-closed"><i class="fa-solid fa-lock"></i> 마감</span>` 
+                  : `<span class="badge-status-open"><i class="fa-solid fa-circle-check"></i> 가능</span>`}
+              </div>
             </td>
             <td>
               <div class="toggle-switch-wrap">
@@ -1810,10 +1856,11 @@
             </td>
             <td>
               <div class="table-claim-form">
-                <input type="text" id="teacher_${item.id}" class="claim-input-sm" value="${escapeHtml(subTeacher)}" placeholder="보강교사 성명" ${isClosed ? 'disabled' : ''}>
-                <button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}')">
-                  ${isClosed ? '마감됨' : (subTeacher ? '✏️ 신청변경' : '🙋‍♂️ 신청')}
-                </button>
+                <input type="text" id="teacher_${item.id}" class="claim-input-sm" value="${escapeHtml(subTeacher)}" placeholder="보강교사 성명" ${isClosed || subTeacher ? 'disabled' : ''}>
+                ${subTeacher
+                  ? `<button class="btn-claim-cancel-sm" ${isClosed ? 'disabled' : ''} title="보강 신청 취소" onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}', true)">신청취소</button>`
+                  : `<button class="btn-claim-sm" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}', false)">🙋‍♂️ 신청</button>`
+                }
                 <button class="btn-edit-sm" title="경매 항목 수정" data-id="${escapeHtml(String(item.id))}" onclick="openEditModal(this.getAttribute('data-id'))">
                   <i class="fa-regular fa-pen-to-square" style="pointer-events: none;"></i>
                 </button>
@@ -1828,7 +1875,16 @@
     }
 
     // Prompt Claim Modal
-    function promptClaim(id, className, subject, date, period) {
+    function promptClaim(id, className, subject, date, period, isCancel = false) {
+      if (isCancel) {
+        const item = rawAuctions.find(a => String(a.id) === String(id));
+        const teacherName = item ? item.substituteTeacher : '';
+        if (confirm(`[${teacherName || '신청'}] 선생님의 보강 신청을 취소하시겠습니까?\n취소 시 이름 입력창이 다시 활성화됩니다.`)) {
+          submitCancelClaim(id);
+        }
+        return;
+      }
+
       const nameInput = document.getElementById(`teacher_${id}`);
       const teacherName = nameInput ? nameInput.value.trim() : '';
 
@@ -1843,7 +1899,7 @@
       document.getElementById('modalBody').innerHTML = `
         <strong>${formatDisplayDate(date)} ${period} (${className}호 - ${subject})</strong> 보강을<br>
         <span style="color: #059669; font-weight: 800; font-size: 1.1rem;">[${teacherName}]</span> 선생님 성함으로 신청하시겠습니까?<br><br>
-        <small style="color: #d97706; font-weight: 600;">⚠️ 보강 신청 후 수업계 담당자의 '수업계 확인' 토글 처리 시 보강 알리미로 이관됩니다.</small>
+        <small style="color: #d97706; font-weight: 600;">⚠️ 신청 후 승인 대기 상태로 전환되며, 수업계 확인 후 보강 알리미로 이관됩니다.</small>
       `;
 
       document.getElementById('modalConfirmBtn').onclick = submitClaim;
@@ -1885,6 +1941,34 @@
           showToast(`[${teacherName}] 선생님의 보강 신청이 접수되었습니다. (수업계 확인 후 알리미로 이관됩니다)`, 'success');
           renderAuctionTable();
         }, 400);
+      }
+    }
+
+    // Cancel Claim function
+    function submitCancelClaim(id) {
+      showToast('보강 신청 취소 처리 중...', 'info');
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              showToast(res.message, 'info');
+              loadAllData();
+            } else {
+              showToast(res.message, 'error');
+            }
+          })
+          .withFailureHandler(onApiError)
+          .claimAuctionRecord(id, '');
+      } else {
+        setTimeout(() => {
+          const target = rawAuctions.find(a => String(a.id) === String(id));
+          if (target) {
+            target.substituteTeacher = '';
+            target.academicApproval = false;
+          }
+          showToast('보강 신청이 취소되었습니다. (테스트 모드)', 'info');
+          renderAuctionTable();
+        }, 350);
       }
     }
 

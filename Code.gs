@@ -270,14 +270,14 @@ function addAuctionRecord(record) {
 }
 
 /**
- * 보강 경매를 신청(접수)합니다.
+ * 보강 경매를 신청(접수) 또는 취소합니다.
  * - 바로 '보강내역'으로 넘기지 않고, '보강경매' 시트의 '보강교사' 정보를 갱신합니다.
- * - 업무 담당자의 '수업계 확인' 후 보강 알리미로 넘어가게 됩니다.
+ * - substituteTeacher가 빈값인 경우 신청 취소 처리됩니다.
  */
 function claimAuctionRecord(auctionId, substituteTeacher) {
   try {
-    if (!auctionId || !substituteTeacher || String(substituteTeacher).trim() === '') {
-      throw new Error('보강 신청 교사 성명을 정확히 입력해주세요.');
+    if (!auctionId) {
+      throw new Error('경매 ID가 누락되었습니다.');
     }
 
     var db = getDbSpreadsheet();
@@ -305,20 +305,27 @@ function claimAuctionRecord(auctionId, substituteTeacher) {
     // 전날 13시 경과 검사
     var deadline = getDeadlineDate(dateStr);
     if (deadline && now.getTime() >= deadline.getTime()) {
-      return { success: false, message: '해당 경매는 전날 13시가 지나 신청이 마감되었습니다.' };
+      return { success: false, message: '해당 경매는 전날 13시가 지나 처리가 마감되었습니다.' };
     }
 
-    var cleanTeacherName = String(substituteTeacher).trim();
+    var cleanTeacherName = substituteTeacher ? String(substituteTeacher).trim() : '';
 
     // 보강경매 시트에 보강교사 업데이트 및 수업계확인 false 유지
     auctionSheet.getRange(foundIndex, 9).setValue(cleanTeacherName); // 9번째 열: 보강교사
     auctionSheet.getRange(foundIndex, 10).setValue(false);            // 10번째 열: 수업계확인
     SpreadsheetApp.flush();
 
-    return {
-      success: true,
-      message: '[' + cleanTeacherName + '] 선생님의 보강 신청이 접수되었습니다. (수업계 확인 후 알리미로 연동됩니다)'
-    };
+    if (cleanTeacherName) {
+      return {
+        success: true,
+        message: '[' + cleanTeacherName + '] 선생님의 보강 신청이 접수되었습니다. (수업계 확인 후 알리미로 연동됩니다)'
+      };
+    } else {
+      return {
+        success: true,
+        message: '보강 신청이 취소되었습니다.'
+      };
+    }
   } catch (err) {
     Logger.log('Error in claimAuctionRecord: ' + err.toString());
     return {
