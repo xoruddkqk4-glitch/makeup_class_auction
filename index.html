@@ -249,12 +249,12 @@
 
     .schedule-table th {
       background-color: var(--primary-color);
-      color: #ffffff;
-      font-weight: 600;
-      font-size: 0.9rem;
-      padding: 10px 8px;
+      color: #ffffff !important;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 9px 5px;
       border: 1px solid #005753;
-      white-space: nowrap;
+      white-space: nowrap !important;
     }
 
     .sortable-th {
@@ -270,8 +270,9 @@
     .sort-icon {
       font-size: 0.775rem;
       margin-left: 4px;
-      opacity: 0.65;
+      opacity: 0.85;
       transition: all 0.2s ease;
+      color: #ffffff;
     }
 
     .sortable-th.active-sort {
@@ -289,6 +290,7 @@
       background-color: #f8fafc;
       padding: 6px;
       border: 1px solid #e2e8f0;
+      color: var(--text-main) !important;
     }
 
     .col-filter-input, .col-filter-select {
@@ -308,7 +310,7 @@
       box-shadow: 0 0 0 2px rgba(0, 107, 103, 0.15);
     }
 
-    .schedule-table th, .schedule-table td {
+    .schedule-table td {
       padding: 8px 5px;
       border: 1px solid #e2e8f0;
       font-size: 0.825rem;
