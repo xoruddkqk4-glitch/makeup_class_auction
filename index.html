@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>홍익 보강 경매 | 온라인 교무실</title>
+  <!-- Google Fonts: Noto Sans KR & Outfit -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons (홍익-보강 알리미 통일) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    :root {
+      --primary-color: #006b67;       /* 홍익-보강 알리미 헤더 청록색 */
+      --primary-hover: #00524f;
+      --primary-light: #e6f4f1;       /* 연한 민트 배경 */
+      --primary-border: #b2dfdb;
+      --accent-color: #0d9488;
+      
+      --auction-primary: #4f46e5;     /* 경매 포인트 인디고 */
+      --auction-hover: #4338ca;
+      --auction-light: #eeef2f;
+      
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --text-sub: #334155;
+      
+      --bg-canvas: #f8fafc;           /* 홍익-보강 알리미 연회색 캔버스 */
+      --card-bg: #ffffff;             /* 깔끔한 화이트 카드 */
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-main);
+      line-height: 1.5;
+      padding: 16px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* --- 상단 헤더 --- */
+    .app-header {
+      text-align: center;
+      margin-bottom: 16px;
+      padding-bottom: 0;
+    }
+
+    .app-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      letter-spacing: -0.5px;
+      margin-bottom: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .header-badge {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      background: var(--primary-light);
+      border: 1px solid var(--primary-border);
+      padding: 3px 12px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .header-subtitle {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* --- 상단 대시보드 요약 카드 --- */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-border);
+    }
+
+    .stat-info h3 {
+      font-size: 0.825rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .stat-info .stat-value {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      margin-top: 2px;
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .stat-icon.active { background: #e0e7ff; color: #4338ca; }
+    .stat-icon.closing { background: #fef3c7; color: #b45309; }
+    .stat-icon.done { background: var(--primary-light); color: var(--primary-color); }
+
+    /* --- 내비게이션 탭 --- */
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 16px;
+      background: #ffffff;
+      padding: 6px;
+      border-radius: var(--radius);
+      border: 1px solid #cbd5e1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-size: 0.925rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      background: #f1f5f9;
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--primary-color);
+      color: #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 107, 103, 0.25);
+    }
+
+    /* --- 필터 바 & 검색 툴바 --- */
+    .toolbar-card {
+      background: var(--card-bg);
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .input-field {
+      padding: 8px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      outline: none;
+      background: #ffffff;
+      color: var(--text-main);
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 2px rgba(0, 107, 103, 0.15);
+    }
+
+    .input-search {
+      min-width: 220px;
+      flex: 1;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    /* --- 보강 경매 카드 그리드 --- */
+    .auction-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    .auction-card {
+      background: var(--card-bg);
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .auction-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+      border-color: var(--primary-border);
+    }
+
+    .auction-card.closed {
+      background: #f8fafc;
+      opacity: 0.75;
+      border-color: #e2e8f0;
+    }
+
+    /* 카드 상단: 날짜 & 교시 시각적 두드러지게 강조 */
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .head-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .badge-date-highlight {
+      background: var(--primary-color);
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-family: 'Outfit', 'Noto Sans KR', sans-serif;
+      box-shadow: 0 2px 4px rgba(0, 107, 103, 0.25);
+    }
+
+    .badge-period-highlight {
+      background: #0284c7;
+      color: #ffffff;
+      font-size: 1.05rem;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: 0 2px 4px rgba(2, 132, 199, 0.25);
+    }
+
+    /* 삭제 버튼: 카드 내부 우측 상단 고정 */
+    .btn-del-card {
+      background: transparent;
+      border: 1px solid transparent;
+      color: #94a3b8;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 0.95rem;
+      transition: all 0.15s ease;
+    }
+
+    .btn-del-card:hover {
+      color: #ef4444;
+      background: #fee2e2;
+      border-color: #fca5a5;
+    }
+
+    /* 교실, 교과, 결강 교사, 보강 사유: 균일하고 덜 드러나게 정돈된 통합 박스 */
+    .meta-uniform-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .meta-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.875rem;
+      line-height: 1.4;
+    }
+
+    .meta-lbl {
+      color: #64748b;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .meta-val {
+      color: #334155;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .deadline-bar {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.8rem;
+    }
+
+    .status-open {
+      color: #047857;
+      font-weight: 700;
+      background: #d1fae5;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .status-closed {
+      color: #b45309;
+      font-weight: 700;
+      background: #fef3c7;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    /* --- 경매 신청 폼 --- */
+    .claim-form-wrap {
+      margin-top: 10px;
+      display: flex;
+      gap: 6px;
+    }
+
+    .claim-input {
+      flex: 1;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      outline: none;
+      background: #ffffff;
+      min-width: 0;
+    }
+
+    .claim-input:focus {
+      border-color: #059669;
+    }
+
+    .btn-claim {
+      background-color: #059669;
+      color: #ffffff;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      box-shadow: 0 2px 4px rgba(5, 150, 105, 0.25);
+    }
+
+    .btn-claim:hover {
+      background-color: #047857;
+    }
+
+    .btn-claim:disabled {
+      background-color: #cbd5e1;
+      color: #94a3b8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    /* --- 보강 등록 카드 --- */
+    .form-card {
+      background: var(--card-bg);
+      border: 1px solid #cbd5e1;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+
+    .form-card-header {
+      background: var(--primary-color);
+      color: #ffffff;
+      padding: 14px 20px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-card-body {
+      padding: 24px;
+    }
+
+    .form-grid-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+    }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: var(--primary-light);
+      color: var(--primary-color);
+      border-radius: 50%;
+      font-size: 0.75rem;
+      margin-right: 6px;
+      font-weight: 800;
+    }
+
+    .required-txt {
+      font-size: 0.775rem;
+      font-weight: 700;
+      color: #ef4444;
+    }
+
+    .optional-txt {
+      font-size: 0.775rem;
+      font-weight: 400;
+      color: #64748b;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.925rem;
+      outline: none;
+      background: #ffffff;
+      color: var(--text-main);
+      transition: border-color 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 107, 103, 0.12);
+    }
+
+    /* 교시 선택 칩 */
+    .period-chips {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+
+    .period-chip {
+      text-align: center;
+      padding: 8px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #f8fafc;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #475569;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .period-chip.selected {
+      background: var(--primary-color);
+      color: #ffffff;
+      border-color: var(--primary-color);
+      box-shadow: 0 2px 4px rgba(0, 107, 103, 0.2);
+    }
+
+    .class-select-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* 추천 태그 칩 */
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip-tag {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      padding: 4px 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .chip-tag:hover {
+      background: var(--primary-light);
+      border-color: var(--primary-border);
+      color: var(--primary-color);
+    }
+
+    .chip-tag .btn-tag-del {
+      font-size: 0.75rem;
+      color: #94a3b8;
+      border-radius: 50%;
+      width: 14px;
+      height: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 2px;
+    }
+
+    .chip-tag .btn-tag-del:hover {
+      color: #ef4444;
+      background: #fee2e2;
+    }
+
+    .btn-add-tag-chip {
+      font-size: 0.8rem;
+      background: #ffffff;
+      border: 1px dashed var(--primary-color);
+      color: var(--primary-color);
+      padding: 4px 10px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.15s ease;
+    }
+
+    .btn-add-tag-chip:hover {
+      background: var(--primary-light);
+    }
+
+    .btn-submit-main {
+      width: 100%;
+      background-color: var(--primary-color);
+      color: #ffffff;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 4px rgba(0, 107, 103, 0.25);
+    }
+
+    .btn-submit-main:hover {
+      background-color: var(--primary-hover);
+    }
+
+    /* --- 테이블 뷰 --- */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid #cbd5e1;
+      overflow: hidden;
+    }
+
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .schedule-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+    }
+
+    .schedule-table th {
+      background-color: var(--primary-color);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.925rem;
+      padding: 12px 8px;
+      border: 1px solid #005753;
+      white-space: nowrap;
+    }
+
+    .schedule-table td {
+      padding: 12px 8px;
+      border: 1px solid #e2e8f0;
+      font-size: 0.925rem;
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+
+    .schedule-table tr:nth-child(even) {
+      background-color: var(--primary-light);
+    }
+
+    .schedule-table tr:hover {
+      background-color: #d1ebe5;
+    }
+
+    .teacher-sub-card {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: #d1fae5;
+      border: 1.5px solid #10b981;
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #065f46;
+    }
+
+    /* --- 빈 상태 & 로딩 스피너 --- */
+    .empty-state {
+      padding: 48px 20px;
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .empty-state i {
+      font-size: 2.5rem;
+      color: #cbd5e1;
+      margin-bottom: 12px;
+    }
+
+    .spinner {
+      border: 3px solid rgba(0, 107, 103, 0.2);
+      border-radius: 50%;
+      border-top: 3px solid var(--primary-color);
+      width: 24px;
+      height: 24px;
+      animation: spin 0.8s linear infinite;
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* --- 토스트 알림 --- */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .toast {
+      background: #1e293b;
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 6px;
+      border-left: 4px solid var(--primary-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+      animation: slideIn 0.25s ease;
+    }
+
+    .toast.success { border-left-color: #10b981; }
+    .toast.error { border-left-color: #ef4444; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* --- 모달 --- */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.55);
+      backdrop-filter: blur(3px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-box {
+      background: #ffffff;
+      border-radius: var(--radius);
+      max-width: 440px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      background: var(--primary-color);
+      color: #ffffff;
+      padding: 12px 18px;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .modal-body {
+      padding: 20px;
+      font-size: 0.925rem;
+      color: var(--text-main);
+    }
+
+    .modal-actions {
+      padding: 12px 18px;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    /* --- 반응형 --- */
+    @media (max-width: 768px) {
+      .form-grid-2col { grid-template-columns: 1fr; }
+      .period-chips { grid-template-columns: repeat(4, 1fr); }
+      .auction-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <header class="app-header">
+      <h1 class="app-title">
+        <i class="fa-solid fa-scale-balanced" style="color: var(--primary-color);"></i> 홍익 보강 경매
+        <span class="header-badge"><i class="fa-solid fa-graduation-cap"></i> 온라인 교무실</span>
+      </h1>
+      <p class="header-subtitle">미신청 보강 수업 자유 신청 및 구글 시트 연동 (보강 알리미 연동)</p>
+    </header>
+
+    <!-- Stat Dashboard -->
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>신청 가능 보강</h3>
+          <div class="stat-value" id="statActiveCount">-</div>
+        </div>
+        <div class="stat-icon active"><i class="fa-solid fa-fire"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>마감 임박 (전날 13시)</h3>
+          <div class="stat-value" id="statClosingCount">-</div>
+        </div>
+        <div class="stat-icon closing"><i class="fa-regular fa-clock"></i></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-info">
+          <h3>체결 완료 보강</h3>
+          <div class="stat-value" id="statConfirmedCount">-</div>
+        </div>
+        <div class="stat-icon done"><i class="fa-solid fa-circle-check"></i></div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('auctionTab', this)">
+        <i class="fa-solid fa-fire"></i> 보강 경매 목록
+      </button>
+      <button class="tab-btn" onclick="switchTab('registerTab', this)">
+        <i class="fa-solid fa-plus"></i> 보강 등록하기
+      </button>
+      <button class="tab-btn" onclick="switchTab('confirmedTab', this)">
+        <i class="fa-solid fa-clipboard-check"></i> 확정 보강 현황
+      </button>
+    </div>
+
+    <!-- Tab 1: 보강 경매 목록 -->
+    <div id="auctionTab" class="tab-content">
+      <!-- Toolbar Filter -->
+      <div class="toolbar-card">
+        <div class="filter-group">
+          <input type="text" id="searchInput" class="input-field input-search" placeholder="결강 교사, 보강 교과, 교실 검색..." oninput="renderAuctions()">
+          <input type="date" id="dateFilter" class="input-field" onchange="renderAuctions()">
+        </div>
+        <div style="font-size: 0.85rem; color: var(--text-muted); display: flex; align-items: center; gap: 8px;">
+          <span style="font-size: 0.8rem; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 10px; font-weight: 700;">DB 연동 정상</span>
+          <button class="btn-action" onclick="loadAllData()">
+            <span id="refreshIcon"><i class="fa-solid fa-rotate"></i></span> 새로고침
+          </button>
+        </div>
+      </div>
+
+      <div id="auctionGrid" class="auction-grid">
+        <div class="empty-state" style="grid-column: 1 / -1;">
+          <div class="spinner"></div>
+          <p style="margin-top: 12px;">보강 경매 목록을 불러오는 중입니다...</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: 보강 수업 등록 -->
+    <div id="registerTab" class="tab-content" style="display: none;">
+      <div class="form-card">
+        <div class="form-card-header">
+          <span><i class="fa-solid fa-pen-to-square"></i> 보강 내역 등록</span>
+          <span style="font-size: 0.8rem; font-weight: 400; opacity: 0.9;">보강 경매 등록용</span>
+        </div>
+        <div class="form-card-body">
+          <form id="addAuctionForm" onsubmit="handleFormSubmit(event)">
+            
+            <div class="form-grid-2col">
+              <!-- 좌측 컬럼 -->
+              <div>
+                <!-- 1. 날짜 지정 -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span><span class="step-num">1</span> 날짜 지정</span>
+                    <span class="required-txt">(필수)</span>
+                  </label>
+                  <input type="date" id="regDate" class="form-control" required>
+                </div>
+
+                <!-- 2. 교시 선택 -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span><span class="step-num">2</span> 교시 선택 (1~7교시)</span>
+                    <span class="required-txt">(필수)</span>
+                  </label>
+                  <div class="period-chips" id="periodChips">
+                    <div class="period-chip selected" onclick="selectPeriod(1)">1교시</div>
+                    <div class="period-chip" onclick="selectPeriod(2)">2교시</div>
+                    <div class="period-chip" onclick="selectPeriod(3)">3교시</div>
+                    <div class="period-chip" onclick="selectPeriod(4)">4교시</div>
+                    <div class="period-chip" onclick="selectPeriod(5)">5교시</div>
+                    <div class="period-chip" onclick="selectPeriod(6)">6교시</div>
+                    <div class="period-chip" onclick="selectPeriod(7)">7교시</div>
+                  </div>
+                  <input type="hidden" id="regPeriod" value="1교시">
+                </div>
+
+                <!-- 3. 교실 선택 -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span><span class="step-num">3</span> 교실 선택</span>
+                    <span class="required-txt">(필수)</span>
+                  </label>
+                  <div class="class-select-grid">
+                    <select class="form-control" id="regFloor" onchange="updateRoomOptions()">
+                      <option value="4층">4층</option>
+                      <option value="3층">3층</option>
+                      <option value="2층" selected>2층</option>
+                      <option value="1층">1층</option>
+                      <option value="지하(B층)">지하(B층)</option>
+                    </select>
+                    <select class="form-control" id="regRoom">
+                      <!-- JavaScript 동적 생성 -->
+                    </select>
+                  </div>
+                </div>
+
+                <!-- 4. 보강 교과 -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span><span class="step-num">4</span> 보강 교과</span>
+                    <span class="required-txt">(필수)</span>
+                  </label>
+                  <input type="text" id="regSubject" class="form-control" placeholder="예: 국어, 수학, 영어 등 (필수)" required>
+                  <div class="tags-container" id="subjectTagsContainer">
+                    <!-- 동적 태그 칩 생성 -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- 우측 컬럼 -->
+              <div>
+                <!-- 5. 결강 교사(원교사) -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span><span class="step-num">5</span> 결강 교사(원교사)</span>
+                    <span class="required-txt">(필수)</span>
+                  </label>
+                  <input type="text" id="regOriginalTeacher" class="form-control" placeholder="예: 홍길동 (원교사 성함)" required>
+                </div>
+
+                <!-- 6. 보강 유발 사유 -->
+                <div class="form-group">
+                  <label class="form-label">
+                    <span><span class="step-num">6</span> 보강 유발 사유</span>
+                    <span class="optional-txt">(선택)</span>
+                  </label>
+                  <input type="text" id="regReason" class="form-control" placeholder="예: 관외 출장, 연가 등 (선택)">
+                  <div class="tags-container" id="reasonTagsContainer">
+                    <!-- 동적 태그 칩 생성 -->
+                  </div>
+                </div>
+
+                <div style="margin-top: 32px;">
+                  <button type="submit" id="btnSubmitForm" class="btn-submit-main">
+                    🚀 보강 경매 등록하기
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: 확정 보강 현황 -->
+    <div id="confirmedTab" class="tab-content" style="display: none;">
+      <div class="table-card">
+        <div class="table-responsive">
+          <table class="schedule-table">
+            <thead>
+              <tr>
+                <th style="width: 15%;">날짜(요일)</th>
+                <th style="width: 9%;">교시</th>
+                <th style="width: 11%;">교실</th>
+                <th style="width: 13%;">보강 교과</th>
+                <th style="width: 22%; background: linear-gradient(135deg, #047857 0%, #065f46 100%); color: #fff;">
+                  <i class="fa-solid fa-bell-concierge" style="color: #fde047; margin-right: 4px;"></i> 보강 교사 (체결)
+                </th>
+                <th style="width: 15%;">결강 교사(원교사)</th>
+                <th style="width: 15%;">보강 사유</th>
+                <th style="width: 10%;">확인 여부</th>
+              </tr>
+            </thead>
+            <tbody id="confirmedTableBody">
+              <tr>
+                <td colspan="8" style="text-align: center; padding: 40px;">
+                  <div class="spinner"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for Confirmation -->
+  <div id="confirmModal" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <i class="fa-solid fa-circle-question"></i> 보강 신청 확인
+      </div>
+      <div class="modal-body" id="modalBody">
+        선택한 보강 수업을 신청하시겠습니까?
+      </div>
+      <div class="modal-actions">
+        <button class="btn-action" onclick="closeModal()">취소</button>
+        <button id="modalConfirmBtn" class="btn-claim">확인 및 신청</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script>
+    // State management
+    let rawAuctions = [];
+    let confirmedList = [];
+    let pendingClaimData = null;
+
+    // 기본 태그 목록 (보강 알리미 표준)
+    const DEFAULT_REASON_TAGS = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출'];
+    let reasonTags = [];
+
+    const DEFAULT_SUBJECT_TAGS = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보'];
+    let subjectTags = [];
+
+    // Initialize on load & listen for cross-app storage events (보강 알리미 연동)
+    document.addEventListener('DOMContentLoaded', () => {
+      const today = new Date().toISOString().split('T')[0];
+      document.getElementById('regDate').setAttribute('min', today);
+      document.getElementById('regDate').value = today;
+
+      initReasonTags();
+      initSubjectTags();
+      updateRoomOptions();
+
+      // 보강 알리미와 동일 브라우저/탭 간 태그 동기화 (Storage Event)
+      window.addEventListener('storage', (e) => {
+        if (e.key === 'custom_reason_tags') {
+          initReasonTags();
+        } else if (e.key === 'custom_subject_tags') {
+          initSubjectTags();
+        }
+      });
+
+      loadAllData();
+    });
+
+    // 교실 층별 동적 옵션 생성
+    function updateRoomOptions() {
+      const floor = document.getElementById('regFloor').value;
+      const roomSelect = document.getElementById('regRoom');
+      if (!roomSelect) return;
+
+      roomSelect.innerHTML = '';
+      let prefix = '';
+      let end = 16;
+
+      if (floor === '지하(B층)') {
+        prefix = 'B';
+        end = 14;
+      } else if (floor === '1층') {
+        prefix = '1';
+        end = 15;
+      } else if (floor === '2층') {
+        prefix = '2';
+        end = 16;
+      } else if (floor === '3층') {
+        prefix = '3';
+        end = 16;
+      } else if (floor === '4층') {
+        prefix = '4';
+        end = 16;
+      }
+
+      for (let i = 1; i <= end; i++) {
+        const numStr = prefix + String(i).padStart(2, '0');
+        const option = document.createElement('option');
+        option.value = numStr;
+        option.textContent = numStr;
+        roomSelect.appendChild(option);
+      }
+    }
+
+    // 교시 선택 칩 핸들러
+    function selectPeriod(periodNum) {
+      const chips = document.querySelectorAll('.period-chip');
+      chips.forEach((chip, idx) => {
+        if (idx === periodNum - 1) {
+          chip.classList.add('selected');
+        } else {
+          chip.classList.remove('selected');
+        }
+      });
+      document.getElementById('regPeriod').value = `${periodNum}교시`;
+    }
+
+    // 보강 사유 태그 관리
+    function initReasonTags() {
+      const saved = localStorage.getItem('custom_reason_tags');
+      if (saved) {
+        try { reasonTags = JSON.parse(saved); } catch (e) { reasonTags = [...DEFAULT_REASON_TAGS]; }
+      } else {
+        reasonTags = [...DEFAULT_REASON_TAGS];
+      }
+      renderReasonTags();
+    }
+
+    function renderReasonTags() {
+      const container = document.getElementById('reasonTagsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      reasonTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'chip-tag';
+        chip.innerHTML = `#${escapeHtml(tag)} <span class="btn-tag-del" title="삭제" onclick="deleteReasonTag(event, '${escapeHtml(tag)}')">&times;</span>`;
+        chip.onclick = () => { document.getElementById('regReason').value = tag; };
+        container.appendChild(chip);
+      });
+
+      const addBtn = document.createElement('span');
+      addBtn.className = 'btn-add-tag-chip';
+      addBtn.innerHTML = `<i class="fa-solid fa-plus"></i> 태그 추가`;
+      addBtn.onclick = (e) => { e.stopPropagation(); addNewReasonTag(); };
+      container.appendChild(addBtn);
+    }
+
+    function addNewReasonTag() {
+      const newTag = prompt('새로 추가할 보강 사유 태그를 입력하세요:');
+      if (newTag && newTag.trim()) {
+        const cleanTag = newTag.trim();
+        if (!reasonTags.includes(cleanTag)) {
+          reasonTags.push(cleanTag);
+          localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
+          renderReasonTags();
+        }
+      }
+    }
+
+    function deleteReasonTag(e, tagToDelete) {
+      e.stopPropagation();
+      if (confirm(`'#${tagToDelete}' 태그를 삭제하시겠습니까?`)) {
+        reasonTags = reasonTags.filter(t => t !== tagToDelete);
+        localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
+        renderReasonTags();
+      }
+    }
+
+    // 보강 교과 태그 관리
+    function initSubjectTags() {
+      const saved = localStorage.getItem('custom_subject_tags');
+      if (saved) {
+        try { subjectTags = JSON.parse(saved); } catch (e) { subjectTags = [...DEFAULT_SUBJECT_TAGS]; }
+      } else {
+        subjectTags = [...DEFAULT_SUBJECT_TAGS];
+      }
+      renderSubjectTags();
+    }
+
+    function renderSubjectTags() {
+      const container = document.getElementById('subjectTagsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      subjectTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = 'chip-tag';
+        chip.innerHTML = `#${escapeHtml(tag)} <span class="btn-tag-del" title="삭제" onclick="deleteSubjectTag(event, '${escapeHtml(tag)}')">&times;</span>`;
+        chip.onclick = () => { document.getElementById('regSubject').value = tag; };
+        container.appendChild(chip);
+      });
+
+      const addBtn = document.createElement('span');
+      addBtn.className = 'btn-add-tag-chip';
+      addBtn.innerHTML = `<i class="fa-solid fa-plus"></i> 태그 추가`;
+      addBtn.onclick = (e) => { e.stopPropagation(); addNewSubjectTag(); };
+      container.appendChild(addBtn);
+    }
+
+    function addNewSubjectTag() {
+      const newTag = prompt('새로 추가할 보강 교과 태그를 입력하세요:');
+      if (newTag && newTag.trim()) {
+        const cleanTag = newTag.trim();
+        if (!subjectTags.includes(cleanTag)) {
+          subjectTags.push(cleanTag);
+          localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
+          renderSubjectTags();
+        }
+      }
+    }
+
+    function deleteSubjectTag(e, tagToDelete) {
+      e.stopPropagation();
+      if (confirm(`'#${tagToDelete}' 교과 태그를 삭제하시겠습니까?`)) {
+        subjectTags = subjectTags.filter(t => t !== tagToDelete);
+        localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
+        renderSubjectTags();
+      }
+    }
+
+    // Load data from Google Apps Script or Mock
+    function loadAllData() {
+      const refreshIcon = document.getElementById('refreshIcon');
+      if (refreshIcon) refreshIcon.style.transform = 'rotate(360deg)';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(onAuctionsLoaded)
+          .withFailureHandler(onApiError)
+          .getAuctionRecords();
+
+        google.script.run
+          .withSuccessHandler(onConfirmedLoaded)
+          .withFailureHandler(onApiError)
+          .getConfirmedRecords();
+      } else {
+        console.log('Running in local/preview mode with mock data.');
+        setTimeout(() => {
+          onAuctionsLoaded(getMockAuctions());
+          onConfirmedLoaded(getMockConfirmed());
+        }, 500);
+      }
+    }
+
+    function onAuctionsLoaded(data) {
+      rawAuctions = data || [];
+      renderAuctions();
+      updateDashboardStats();
+    }
+
+    function onConfirmedLoaded(data) {
+      confirmedList = data || [];
+      renderConfirmedTable();
+      updateDashboardStats();
+    }
+
+    function onApiError(err) {
+      showToast('오류가 발생했습니다: ' + (err.message || err), 'error');
+    }
+
+    // Switch Tabs
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).style.display = 'block';
+      btn.classList.add('active');
+    }
+
+    // Render Auction Grid (날짜/교시 강조 & 교실/교과/원교사/사유 정보 덜 드러나게 통합 배치 & 카드 내부 우측 상단 삭제 버튼)
+    function renderAuctions() {
+      const grid = document.getElementById('auctionGrid');
+      const search = document.getElementById('searchInput').value.trim().toLowerCase();
+      const dateVal = document.getElementById('dateFilter').value;
+
+      let filtered = rawAuctions.filter(item => {
+        if (dateVal && item.date !== dateVal) return false;
+        if (search) {
+          const haystack = (item.className + item.subject + item.originalTeacher + item.reason).toLowerCase();
+          if (!haystack.includes(search)) return false;
+        }
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <i class="fa-regular fa-folder-open"></i>
+            <h3>현재 등록된 보강 경매가 없습니다</h3>
+            <p style="margin-top: 6px;">새로운 보강 내역이 필요한 경우 [보강 등록하기] 탭에서 추가해주세요.</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(item => {
+        const isClosed = item.isClosed;
+        const closedClass = isClosed ? 'closed' : '';
+
+        return `
+          <div class="auction-card ${closedClass}">
+            <div>
+              <!-- 1. 카드 상단: 날짜 & 교시 시각적 두드러지게 강조, 삭제 버튼 카드 우측 상단 내부 위치 -->
+              <div class="card-head">
+                <div class="head-badges">
+                  <span class="badge-date-highlight">📅 ${formatDisplayDate(item.date)}</span>
+                  <span class="badge-period-highlight">${item.period}</span>
+                </div>
+                <button class="btn-del-card" title="경매 삭제/취소" onclick="deleteAuction('${item.id}')">
+                  <i class="fa-regular fa-trash-can"></i>
+                </button>
+              </div>
+
+              <!-- 2. 교실, 교과, 결강 교사, 보강 사유: 덜 드러나도록 동일한 톤의 통합 박스 처리 -->
+              <div class="meta-uniform-box">
+                <div class="meta-item-row">
+                  <span class="meta-lbl">교실 / 교과</span>
+                  <span class="meta-val"><strong>${escapeHtml(item.className)}</strong>호 &nbsp;|&nbsp; <strong>${escapeHtml(item.subject)}</strong></span>
+                </div>
+                <div class="meta-item-row">
+                  <span class="meta-lbl">결강 교사(원교사)</span>
+                  <span class="meta-val">${escapeHtml(item.originalTeacher)} 선생님</span>
+                </div>
+                ${item.reason ? `
+                  <div class="meta-item-row">
+                    <span class="meta-lbl">보강 사유</span>
+                    <span class="meta-val">${escapeHtml(item.reason)}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+
+            <div>
+              <!-- 3. 마감 상태 안내 -->
+              <div class="deadline-bar">
+                <span><i class="fa-regular fa-clock"></i> 마감: ${item.deadlineText ? item.deadlineText : '전날 13:00'}</span>
+                ${isClosed 
+                  ? `<span class="status-closed"><i class="fa-solid fa-lock"></i> 신청 마감</span>` 
+                  : `<span class="status-open"><i class="fa-solid fa-circle-check"></i> 신청 가능</span>`}
+              </div>
+
+              <!-- 4. 신청 폼 -->
+              <div class="claim-form-wrap">
+                <input type="text" id="teacher_${item.id}" class="claim-input" placeholder="보강 교사 성명" ${isClosed ? 'disabled' : ''}>
+                <button class="btn-claim" ${isClosed ? 'disabled' : ''} onclick="promptClaim('${item.id}', '${escapeHtml(item.className)}', '${escapeHtml(item.subject)}', '${item.date}', '${item.period}')">
+                  ${isClosed ? '마감됨' : '🙋‍♂️ 신청하기'}
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render Confirmed Table
+    function renderConfirmedTable() {
+      const tbody = document.getElementById('confirmedTableBody');
+      if (confirmedList.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" style="text-align: center; color: var(--text-muted); padding: 40px;">
+              아직 체결 확정된 보강 내역이 없습니다.
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = confirmedList.map(item => `
+        <tr>
+          <td>📅 ${formatDisplayDate(item.date)}</td>
+          <td><span class="badge-period">${item.period}</span></td>
+          <td><span class="badge-class-pill">${escapeHtml(item.className)}</span></td>
+          <td><span class="badge-subject-pill">${escapeHtml(item.subject)}</span></td>
+          <td><span class="teacher-sub-card"><i class="fa-solid fa-bell-concierge" style="color: #059669;"></i> ${escapeHtml(item.substituteTeacher)}</span></td>
+          <td><span style="color: #e11d48; font-weight: 600;">${escapeHtml(item.originalTeacher)}</span></td>
+          <td>${item.reason ? `<span style="background: #fef3c7; color: #92400e; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">${escapeHtml(item.reason)}</span>` : '-'}</td>
+          <td>${item.confirmed ? '✅ 확인완료' : '⏳ 미확인'}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Update Stats
+    function updateDashboardStats() {
+      const active = rawAuctions.filter(a => !a.isClosed).length;
+      const closing = rawAuctions.filter(a => a.isClosed).length;
+      const done = confirmedList.length;
+
+      document.getElementById('statActiveCount').innerText = active;
+      document.getElementById('statClosingCount').innerText = closing;
+      document.getElementById('statConfirmedCount').innerText = done;
+    }
+
+    // Prompt Claim Modal
+    function promptClaim(id, className, subject, date, period) {
+      const nameInput = document.getElementById(`teacher_${id}`);
+      const teacherName = nameInput ? nameInput.value.trim() : '';
+
+      if (!teacherName) {
+        showToast('보강 신청 교사 성함을 입력해주세요.', 'error');
+        if (nameInput) nameInput.focus();
+        return;
+      }
+
+      pendingClaimData = { id, teacherName };
+
+      document.getElementById('modalBody').innerHTML = `
+        <strong>${formatDisplayDate(date)} ${period} (${className} - ${subject})</strong> 보강을<br>
+        <span style="color: #059669; font-weight: 800; font-size: 1.1rem;">[${teacherName}]</span> 선생님 성함으로 신청하시겠습니까?<br><br>
+        <small style="color: var(--text-muted);">신청 시 구글 시트('보강내역')에 반영되고 경매 목록에서 삭제됩니다.</small>
+      `;
+
+      document.getElementById('modalConfirmBtn').onclick = submitClaim;
+      document.getElementById('confirmModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('confirmModal').classList.remove('active');
+      pendingClaimData = null;
+    }
+
+    // Submit Claim to Apps Script
+    function submitClaim() {
+      if (!pendingClaimData) return;
+      const { id, teacherName } = pendingClaimData;
+
+      closeModal();
+      showToast('보강 신청을 처리 중입니다...', 'info');
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              showToast(res.message, 'success');
+              loadAllData();
+            } else {
+              showToast(res.message, 'error');
+            }
+          })
+          .withFailureHandler(onApiError)
+          .claimAuctionRecord(id, teacherName);
+      } else {
+        setTimeout(() => {
+          rawAuctions = rawAuctions.filter(a => a.id !== id);
+          confirmedList.unshift({
+            id: 'SUB-MOCK',
+            date: '2026-09-08',
+            period: '3교시',
+            className: '203',
+            subject: '국어',
+            originalTeacher: '김철수',
+            substituteTeacher: teacherName,
+            reason: '공가',
+            confirmed: true // 보강 알리미 본인 확인 기본값 true
+          });
+          showToast('보강 신청 완료! (보강 알리미 본인 확인 완료 처리)', 'success');
+          renderAuctions();
+          renderConfirmedTable();
+          updateDashboardStats();
+        }, 400);
+      }
+    }
+
+    // Form Submit: Add Auction Record
+    function handleFormSubmit(e) {
+      e.preventDefault();
+
+      const dateVal = document.getElementById('regDate').value;
+      const periodVal = document.getElementById('regPeriod').value;
+      const roomVal = document.getElementById('regRoom').value;
+      const periodNum = parseInt(String(periodVal).replace(/[^0-9]/g, ''), 10) || 0;
+
+      // 당일 및 익일 날짜 계산
+      const now = new Date();
+      const todayStr = formatDisplayDateRaw(now);
+
+      const tomorrow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+      const tomorrowStr = formatDisplayDateRaw(tomorrow);
+
+      const btn = document.getElementById('btnSubmitForm');
+
+      // 1. 당일 5교시 ~ 7교시 등록 제한
+      if (dateVal === todayStr && periodNum >= 5) {
+        showToast('마감 시간이 초과되어 등록할 수 없습니다.', 'error');
+        return;
+      }
+
+      // 2. 익일(다음날) 1교시 ~ 4교시 등록 제한
+      if (dateVal === tomorrowStr && periodNum >= 1 && periodNum <= 4) {
+        showToast('마감 시간이 초과되어 등록할 수 없습니다.', 'error');
+        return;
+      }
+
+      const record = {
+        date: dateVal,
+        period: periodVal,
+        className: roomVal,
+        subject: document.getElementById('regSubject').value.trim(),
+        originalTeacher: document.getElementById('regOriginalTeacher').value.trim(),
+        reason: document.getElementById('regReason').value.trim()
+      };
+
+      btn.disabled = true;
+      btn.innerText = '등록 중...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            btn.disabled = false;
+            btn.innerText = '🚀 보강 경매 등록하기';
+
+            if (res.success) {
+              showToast(res.message, 'success');
+              document.getElementById('addAuctionForm').reset();
+              const today = new Date().toISOString().split('T')[0];
+              document.getElementById('regDate').value = today;
+              selectPeriod(1);
+              updateRoomOptions();
+              
+              const firstTab = document.querySelectorAll('.tab-btn')[0];
+              switchTab('auctionTab', firstTab);
+              loadAllData();
+            } else {
+              showToast(res.message, 'error');
+            }
+          })
+          .withFailureHandler(err => {
+            btn.disabled = false;
+            btn.innerText = '🚀 보강 경매 등록하기';
+            onApiError(err);
+          })
+          .addAuctionRecord(record);
+      } else {
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.innerText = '🚀 보강 경매 등록하기';
+          rawAuctions.unshift({
+            id: 'AUC-' + Date.now(),
+            date: record.date,
+            period: record.period,
+            className: record.className,
+            subject: record.subject,
+            originalTeacher: record.originalTeacher,
+            reason: record.reason,
+            isClosed: false
+          });
+          showToast('보강 수업 등록 완료! (테스트 모드)', 'success');
+          document.getElementById('addAuctionForm').reset();
+          const firstTab = document.querySelectorAll('.tab-btn')[0];
+          switchTab('auctionTab', firstTab);
+          renderAuctions();
+          updateDashboardStats();
+        }, 500);
+      }
+    }
+
+    // Delete Auction Record
+    function deleteAuction(id) {
+      if (!confirm('이 보강 경매 등록을 정말 취소/삭제하시겠습니까?')) return;
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(res => {
+            if (res.success) {
+              showToast(res.message, 'success');
+              loadAllData();
+            } else {
+              showToast(res.message, 'error');
+            }
+          })
+          .withFailureHandler(onApiError)
+          .deleteAuctionRecord(id);
+      } else {
+        rawAuctions = rawAuctions.filter(a => a.id !== id);
+        showToast('삭제되었습니다 (테스트 모드)', 'success');
+        renderAuctions();
+        updateDashboardStats();
+      }
+    }
+
+    // Helper: Toast Notifications
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'error' ? '⚠️' : '✅'}</span> ${escapeHtml(message)}`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(100%)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // Helper: Date Formatting
+    function formatDisplayDateRaw(d) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function formatDisplayDate(dateStr) {
+      if (!dateStr) return '';
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      const parts = dateStr.split('-');
+      if (parts.length === 3) {
+        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        const dayName = days[d.getDay()];
+        return `${parts[1]}/${parts[2]} (${dayName})`;
+      }
+      return dateStr;
+    }
+
+    // Helper: Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Mock Data for Standalone Preview
+    function getMockAuctions() {
+      return [
+        {
+          id: 'AUC-101',
+          date: '2026-09-08',
+          period: '2교시',
+          className: '203',
+          subject: '수학',
+          originalTeacher: '홍길동',
+          reason: '관외 출장',
+          isClosed: false,
+          deadlineText: '09/07 13:00'
+        },
+        {
+          id: 'AUC-102',
+          date: '2026-09-09',
+          period: '4교시',
+          className: '105',
+          subject: '영어',
+          originalTeacher: '김영희',
+          reason: '연가 사용',
+          isClosed: false,
+          deadlineText: '09/08 13:00'
+        },
+        {
+          id: 'AUC-103',
+          date: '2026-09-05',
+          period: '1교시',
+          className: '312',
+          subject: '과학',
+          originalTeacher: '박철수',
+          reason: '공가',
+          isClosed: true,
+          deadlineText: '09/04 13:00'
+        }
+      ];
+    }
+
+    function getMockConfirmed() {
+      return [
+        {
+          id: 'SUB-201',
+          date: '2026-09-04',
+          period: '3교시',
+          className: '101',
+          subject: '국어',
+          originalTeacher: '이선생',
+          substituteTeacher: '박보강',
+          reason: '출장',
+          confirmed: true
+        }
+      ];
+    }
+  </script>
+</body>
+</html>
