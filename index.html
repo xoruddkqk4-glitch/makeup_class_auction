@@ -757,11 +757,35 @@
       background: var(--primary-hover);
     }
 
-    @media (max-width: 768px) {
-      .form-grid-2col { grid-template-columns: 1fr; }
-      .period-chips { grid-template-columns: repeat(4, 1fr); }
-      .table-header-title { flex-direction: column; align-items: stretch; }
-      .header-controls-left, .header-controls-right { justify-content: space-between; }
+    /* 새로고침 및 초기화 버튼 동적 클릭 애니메이션 */
+    @keyframes spinClockwise {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes spinCounterClockwise {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(-360deg); }
+    }
+
+    @keyframes btnFlashScale {
+      0% { transform: scale(1); }
+      40% { transform: scale(0.92); background-color: var(--primary-light); border-color: var(--primary-color); }
+      100% { transform: scale(1); }
+    }
+
+    .animate-spin-cw {
+      display: inline-block;
+      animation: spinClockwise 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .animate-spin-ccw {
+      display: inline-block;
+      animation: spinCounterClockwise 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .btn-clicked-pulse {
+      animation: btnFlashScale 0.35s ease-out;
     }
   </style>
 </head>
@@ -805,8 +829,8 @@
 
         <div class="header-controls-right">
           <span style="font-size: 0.8rem; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 10px; font-weight: 700;">DB 연동 정상</span>
-          <button class="btn btn-outline btn-sm" onclick="loadAllData()">
-            <span id="refreshIcon"><i class="fa-solid fa-rotate"></i></span> 새로고침
+          <button class="btn btn-outline btn-sm" id="btnRefresh" onclick="loadAllData(event)">
+            <span id="refreshIcon" style="display: inline-block;"><i class="fa-solid fa-rotate"></i></span> 새로고침
           </button>
           <button class="btn btn-primary btn-sm" onclick="openAddModal()">
             <i class="fa-solid fa-plus"></i> 보강 경매 등록하기
@@ -902,8 +926,8 @@
               </th>
               <th></th>
               <th>
-                <button class="btn btn-outline btn-sm" style="padding: 3px 6px; font-size: 0.7rem; white-space: nowrap;" title="모든 필터 초기화" onclick="resetColumnFilters()">
-                  <i class="fa-solid fa-rotate-left"></i> 초기화
+                <button class="btn btn-outline btn-sm" id="btnResetFilters" style="padding: 3px 6px; font-size: 0.7rem; white-space: nowrap;" title="모든 필터 초기화" onclick="resetColumnFilters(event)">
+                  <span id="resetIcon" style="display: inline-block;"><i class="fa-solid fa-rotate-left"></i></span> 초기화
                 </button>
               </th>
             </tr>
@@ -1272,19 +1296,39 @@
     }
 
     // Load data from Google Apps Script or Mock
-    function loadAllData() {
+    function loadAllData(e) {
+      const btn = (e && e.currentTarget) ? e.currentTarget : document.getElementById('btnRefresh');
       const refreshIcon = document.getElementById('refreshIcon');
-      if (refreshIcon) refreshIcon.style.transform = 'rotate(360deg)';
+
+      if (refreshIcon) {
+        refreshIcon.classList.remove('animate-spin-cw');
+        void refreshIcon.offsetWidth; // Reflow 트리거
+        refreshIcon.classList.add('animate-spin-cw');
+        setTimeout(() => refreshIcon.classList.remove('animate-spin-cw'), 600);
+      }
+
+      if (btn) {
+        btn.classList.remove('btn-clicked-pulse');
+        void btn.offsetWidth; // Reflow 트리거
+        btn.classList.add('btn-clicked-pulse');
+        setTimeout(() => btn.classList.remove('btn-clicked-pulse'), 350);
+      }
+
+      showToast('경매 데이터를 새로고침하는 중입니다...', 'info');
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run
-          .withSuccessHandler(onAuctionsLoaded)
+          .withSuccessHandler(data => {
+            onAuctionsLoaded(data);
+            showToast('최신 경매 데이터를 성공적으로 불러왔습니다.', 'success');
+          })
           .withFailureHandler(onApiError)
           .getAuctionRecords();
       } else {
         console.log('Running in local/preview mode with mock data.');
         setTimeout(() => {
           onAuctionsLoaded(getMockAuctions());
+          showToast('최신 경매 데이터를 성공적으로 불러왔습니다. (테스트 모드)', 'success');
         }, 400);
       }
     }
@@ -1399,14 +1443,33 @@
       renderAuctionTable();
     }
 
-    function resetColumnFilters() {
+    function resetColumnFilters(e) {
+      const btn = (e && e.currentTarget) ? e.currentTarget : document.getElementById('btnResetFilters');
+      const resetIcon = document.getElementById('resetIcon');
+
+      if (resetIcon) {
+        resetIcon.classList.remove('animate-spin-ccw');
+        void resetIcon.offsetWidth; // Reflow 트리거
+        resetIcon.classList.add('animate-spin-ccw');
+        setTimeout(() => resetIcon.classList.remove('animate-spin-ccw'), 600);
+      }
+
+      if (btn) {
+        btn.classList.remove('btn-clicked-pulse');
+        void btn.offsetWidth; // Reflow 트리거
+        btn.classList.add('btn-clicked-pulse');
+        setTimeout(() => btn.classList.remove('btn-clicked-pulse'), 350);
+      }
+
       document.getElementById('filterColStatus').value = '';
       document.getElementById('filterColPeriod').value = '';
       document.getElementById('filterColClass').value = '';
       document.getElementById('filterColSubject').value = '';
       document.getElementById('filterColOrigTeacher').value = '';
       document.getElementById('filterColReason').value = '';
+      
       renderAuctionTable();
+      showToast('모든 검색 필터가 초기화되었습니다.', 'info');
     }
 
     // Main Table Render
