@@ -573,3 +573,123 @@ function autoCleanupAuctions() {
   Logger.log('Running autoCleanupAuctions...');
   getAuctionRecords();
 }
+
+/**
+ * '태그관리' 시트에서 보강 교과 및 보강 유발 사유 태그 목록을 조회합니다.
+ */
+function getTagsFromSheet() {
+  try {
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var ssId = scriptProperties.getProperty('SPREADSHEET_ID') || DEFAULT_SPREADSHEET_ID;
+    var ss;
+    try {
+      ss = SpreadsheetApp.openById(ssId);
+    } catch (e) {
+      ss = SpreadsheetApp.getActiveSpreadsheet();
+    }
+    
+    var sheet = ss.getSheetByName('태그관리');
+    if (!sheet) {
+      sheet = ss.insertSheet('태그관리');
+      sheet.appendRow(['보강교과', '보강사유']);
+      sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+      var defaultSubjects = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'];
+      var defaultReasons = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참'];
+      var maxLen = Math.max(defaultSubjects.length, defaultReasons.length);
+      for (var i = 0; i < maxLen; i++) {
+        sheet.appendRow([defaultSubjects[i] || '', defaultReasons[i] || '']);
+      }
+      SpreadsheetApp.flush();
+    }
+    
+    var lastRow = sheet.getLastRow();
+    var subjectTags = [];
+    var reasonTags = [];
+    
+    if (lastRow > 1) {
+      var data = sheet.getDataRange().getValues();
+      var col1Header = String(data[0][0] || '').trim();
+      
+      if (col1Header.indexOf('구분') !== -1) {
+        for (var i = 1; i < data.length; i++) {
+          var type = String(data[i][0] || '').trim();
+          var val = String(data[i][1] || '').trim();
+          if (!val) continue;
+          if (type.indexOf('교과') !== -1 && subjectTags.indexOf(val) === -1) {
+            subjectTags.push(val);
+          } else if (type.indexOf('사유') !== -1 && reasonTags.indexOf(val) === -1) {
+            reasonTags.push(val);
+          }
+        }
+      } else {
+        for (var i = 1; i < data.length; i++) {
+          var subj = String(data[i][0] || '').trim();
+          var reas = String(data[i][1] || '').trim();
+          if (subj && subjectTags.indexOf(subj) === -1) subjectTags.push(subj);
+          if (reas && reasonTags.indexOf(reas) === -1) reasonTags.push(reas);
+        }
+      }
+    }
+    
+    if (subjectTags.length === 0) {
+      subjectTags = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'];
+    }
+    if (reasonTags.length === 0) {
+      reasonTags = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참'];
+    }
+    
+    return {
+      success: true,
+      subjectTags: subjectTags,
+      reasonTags: reasonTags
+    };
+  } catch (e) {
+    Logger.log('Error in getTagsFromSheet: ' + e.toString());
+    return {
+      success: false,
+      error: e.toString(),
+      subjectTags: ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보'],
+      reasonTags: ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출']
+    };
+  }
+}
+
+/**
+ * '태그관리' 시트에 보강 교과 및 보강 유발 사유 태그 목록을 저장합니다.
+ */
+function saveTagsToSheet(subjectTags, reasonTags) {
+  try {
+    var scriptProperties = PropertiesService.getScriptProperties();
+    var ssId = scriptProperties.getProperty('SPREADSHEET_ID') || DEFAULT_SPREADSHEET_ID;
+    var ss;
+    try {
+      ss = SpreadsheetApp.openById(ssId);
+    } catch (e) {
+      ss = SpreadsheetApp.getActiveSpreadsheet();
+    }
+    
+    var sheet = ss.getSheetByName('태그관리');
+    if (!sheet) {
+      sheet = ss.insertSheet('태그관리');
+    }
+    sheet.clearContents();
+    sheet.getRange(1, 1, 1, 2).setValues([['보강교과', '보강사유']]).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    
+    var sTags = Array.isArray(subjectTags) ? subjectTags : [];
+    var rTags = Array.isArray(reasonTags) ? reasonTags : [];
+    var maxLen = Math.max(sTags.length, rTags.length);
+    
+    if (maxLen > 0) {
+      var rows = [];
+      for (var i = 0; i < maxLen; i++) {
+        rows.push([sTags[i] || '', rTags[i] || '']);
+      }
+      sheet.getRange(2, 1, rows.length, 2).setValues(rows);
+    }
+    SpreadsheetApp.flush();
+    return { success: true };
+  } catch (e) {
+    Logger.log('Error in saveTagsToSheet: ' + e.toString());
+    return { success: false, error: e.toString() };
+  }
+}

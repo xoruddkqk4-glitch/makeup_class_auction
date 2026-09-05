@@ -1065,10 +1065,6 @@
         </div>
 
         <div class="header-controls-right">
-          <span style="font-size: 0.8rem; color: #047857; background: #d1fae5; padding: 2px 8px; border-radius: 10px; font-weight: 700;">DB 연동 정상</span>
-          <button class="btn btn-outline btn-sm" id="btnRefresh" onclick="loadAllData(event, true)">
-            <span id="refreshIcon" style="display: inline-block;"><i class="fa-solid fa-rotate"></i></span> 새로고침
-          </button>
           <button class="btn btn-primary btn-sm" onclick="openAddModal()">
             <i class="fa-solid fa-plus"></i> 보강 경매 등록하기
           </button>
@@ -1441,10 +1437,10 @@
     let currentSortAsc = true;
 
     // 기본 태그 목록 (보강 알리미 표준)
-    const DEFAULT_REASON_TAGS = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출'];
+    const DEFAULT_REASON_TAGS = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참'];
     let reasonTags = [];
 
-    const DEFAULT_SUBJECT_TAGS = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보'];
+    const DEFAULT_SUBJECT_TAGS = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'];
     let subjectTags = [];
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1455,6 +1451,7 @@
       initReasonTags();
       initSubjectTags();
       updateRoomOptions();
+      fetchTagsFromBackend();
 
       // 보강 알리미와 동일 브라우저/탭 간 태그 동기화 (Storage Event)
       window.addEventListener('storage', (e) => {
@@ -1467,6 +1464,62 @@
 
       loadAllData();
     });
+
+    // 구글 스프레드시트 '태그관리' 시트 태그 불러오기 및 병합
+    function fetchTagsFromBackend() {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.withSuccessHandler((res) => {
+          if (res && res.success) {
+            const sheetReasons = Array.isArray(res.reasonTags) ? res.reasonTags : [];
+            const sheetSubjects = Array.isArray(res.subjectTags) ? res.subjectTags : [];
+
+            let mergedReasons = [...sheetReasons];
+            reasonTags.forEach(t => {
+              if (t && !mergedReasons.includes(t)) mergedReasons.push(t);
+            });
+
+            let mergedSubjects = [...sheetSubjects];
+            subjectTags.forEach(t => {
+              if (t && !mergedSubjects.includes(t)) mergedSubjects.push(t);
+            });
+
+            const sheetNeedsUpdate = mergedReasons.length > sheetReasons.length || mergedSubjects.length > sheetSubjects.length;
+
+            reasonTags = mergedReasons;
+            subjectTags = mergedSubjects;
+
+            localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
+            localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
+
+            renderReasonTags();
+            renderSubjectTags();
+            populateFilterOptions();
+
+            if (sheetNeedsUpdate) {
+              google.script.run.saveTagsToSheet(subjectTags, reasonTags);
+            }
+          }
+        }).getTagsFromSheet();
+      }
+    }
+
+    function saveReasonTags() {
+      localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
+      renderReasonTags();
+      populateFilterOptions();
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.saveTagsToSheet(subjectTags, reasonTags);
+      }
+    }
+
+    function saveSubjectTags() {
+      localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
+      renderSubjectTags();
+      populateFilterOptions();
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run.saveTagsToSheet(subjectTags, reasonTags);
+      }
+    }
 
     // 보강 등록 모달 열기/닫기
     function openAddModal() {
@@ -1559,9 +1612,7 @@
         const cleanTag = newTag.trim();
         if (!reasonTags.includes(cleanTag)) {
           reasonTags.push(cleanTag);
-          localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
-          renderReasonTags();
-          populateFilterOptions();
+          saveReasonTags();
         }
       }
     }
@@ -1570,9 +1621,7 @@
       e.stopPropagation();
       if (confirm(`'#${tagToDelete}' 태그를 삭제하시겠습니까?`)) {
         reasonTags = reasonTags.filter(t => t !== tagToDelete);
-        localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
-        renderReasonTags();
-        populateFilterOptions();
+        saveReasonTags();
       }
     }
 
@@ -1614,9 +1663,7 @@
         const cleanTag = newTag.trim();
         if (!subjectTags.includes(cleanTag)) {
           subjectTags.push(cleanTag);
-          localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
-          renderSubjectTags();
-          populateFilterOptions();
+          saveSubjectTags();
         }
       }
     }
@@ -1625,9 +1672,7 @@
       e.stopPropagation();
       if (confirm(`'#${tagToDelete}' 교과 태그를 삭제하시겠습니까?`)) {
         subjectTags = subjectTags.filter(t => t !== tagToDelete);
-        localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
-        renderSubjectTags();
-        populateFilterOptions();
+        saveSubjectTags();
       }
     }
 
