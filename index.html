@@ -1452,6 +1452,7 @@
       initSubjectTags();
       updateRoomOptions();
       fetchTagsFromBackend();
+      initRealtimeSync();
 
       // 보강 알리미와 동일 브라우저/탭 간 태그 동기화 (Storage Event)
       window.addEventListener('storage', (e) => {
@@ -1459,11 +1460,77 @@
           initReasonTags();
         } else if (e.key === 'custom_subject_tags') {
           initSubjectTags();
+        } else if (e.key === 'hogik_sync_trigger') {
+          silentFetchLatestData();
         }
       });
 
       loadAllData();
     });
+
+    // 실시간 비동기 동기화 및 탭간 BroadcastChannel 연동
+    let syncChannel = null;
+
+    function initRealtimeSync() {
+      if (typeof BroadcastChannel !== 'undefined') {
+        try {
+          syncChannel = new BroadcastChannel('hogik_class_sync');
+          syncChannel.onmessage = function(event) {
+            if (event && event.data && event.data.type === 'DATA_UPDATED') {
+              silentFetchLatestData();
+              fetchTagsFromBackend();
+            }
+          };
+        } catch (e) {}
+      }
+
+      // 10초 주기 스마트 무음 백그라운드 폴링 (새로고침 없이 갱신)
+      setInterval(() => {
+        const activeModal = document.querySelector('.modal-overlay.active');
+        if (!activeModal && document.visibilityState === 'visible') {
+          silentFetchLatestData();
+        }
+      }, 10000);
+
+      // 탭 포커스 복귀 시 즉시 갱신
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          silentFetchLatestData();
+          fetchTagsFromBackend();
+        }
+      });
+      window.addEventListener('focus', () => {
+        silentFetchLatestData();
+        fetchTagsFromBackend();
+      });
+    }
+
+    function notifyDataChanged() {
+      if (syncChannel) {
+        try {
+          syncChannel.postMessage({ type: 'DATA_UPDATED', timestamp: Date.now() });
+        } catch (e) {}
+      }
+      try {
+        localStorage.setItem('hogik_sync_trigger', String(Date.now()));
+      } catch (e) {}
+    }
+
+    function silentFetchLatestData() {
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(data => {
+            if (data && Array.isArray(data)) {
+              rawAuctions = data;
+              try {
+                localStorage.setItem('cached_auctions_data', JSON.stringify(rawAuctions));
+              } catch (e) {}
+              renderAuctionTable();
+            }
+          })
+          .getAuctionRecords(true);
+      }
+    }
 
     // 구글 스프레드시트 '태그관리' 시트 태그 불러오기 및 병합
     function fetchTagsFromBackend() {
@@ -1507,6 +1574,7 @@
       localStorage.setItem('custom_reason_tags', JSON.stringify(reasonTags));
       renderReasonTags();
       populateFilterOptions();
+      notifyDataChanged();
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.saveTagsToSheet(subjectTags, reasonTags);
       }
@@ -1516,6 +1584,7 @@
       localStorage.setItem('custom_subject_tags', JSON.stringify(subjectTags));
       renderSubjectTags();
       populateFilterOptions();
+      notifyDataChanged();
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run.saveTagsToSheet(subjectTags, reasonTags);
       }
@@ -2136,6 +2205,7 @@
             if (res.success) {
               showToast(res.message, 'success');
               loadAllData();
+              notifyDataChanged();
             } else {
               showToast(res.message, 'error');
             }
@@ -2151,6 +2221,7 @@
           }
           showToast(`[${teacherName}] 선생님의 보강 신청이 접수되었습니다. (수업계 확인 후 알리미로 이관됩니다)`, 'success');
           renderAuctionTable();
+          notifyDataChanged();
         }, 400);
       }
     }
@@ -2164,6 +2235,7 @@
             if (res.success) {
               showToast(res.message, 'info');
               loadAllData();
+              notifyDataChanged();
             } else {
               showToast(res.message, 'error');
             }
@@ -2179,6 +2251,7 @@
           }
           showToast('보강 신청이 취소되었습니다. (테스트 모드)', 'info');
           renderAuctionTable();
+          notifyDataChanged();
         }, 350);
       }
     }
@@ -2207,6 +2280,7 @@
               if (res.success) {
                 showToast(res.message, 'success');
                 loadAllData();
+                notifyDataChanged();
               } else {
                 showToast(res.message, 'error');
                 if (toggleElem) toggleElem.checked = false;
@@ -2222,6 +2296,7 @@
             rawAuctions = rawAuctions.filter(a => String(a.id) !== String(id));
             showToast(`수업계 확인 완료! [${substituteTeacher}] 선생님 보강건이 보강 알리미로 성공적으로 이관되었습니다. (테스트 모드)`, 'success');
             renderAuctionTable();
+            notifyDataChanged();
           }, 350);
         }
       } else {
@@ -2233,6 +2308,7 @@
               if (res.success) {
                 showToast(res.message, 'info');
                 loadAllData();
+                notifyDataChanged();
               } else {
                 showToast(res.message, 'error');
                 if (toggleElem) toggleElem.checked = true;
@@ -2310,6 +2386,7 @@
               updateRoomOptions();
               closeAddModal();
               loadAllData();
+              notifyDataChanged();
             } else {
               showToast(res.message, 'error');
             }
@@ -2518,6 +2595,7 @@
               showToast(res.message, 'success');
               closeEditModal();
               loadAllData();
+              notifyDataChanged();
             } else {
               showToast(res.message, 'error');
             }
@@ -2544,6 +2622,7 @@
           showToast('보강 경매 항목이 수정되었습니다!', 'success');
           closeEditModal();
           renderAuctionTable();
+          notifyDataChanged();
         }, 400);
       }
     }
@@ -2558,6 +2637,7 @@
             if (res.success) {
               showToast(res.message, 'success');
               loadAllData();
+              notifyDataChanged();
             } else {
               showToast(res.message, 'error');
             }
