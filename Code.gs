@@ -576,6 +576,7 @@ function autoCleanupAuctions() {
 
 /**
  * '태그관리' 시트에서 보강 교과 및 보강 유발 사유 태그 목록을 조회합니다.
+ * (구글 시트 구조: 구분[SUBJECT/REASON] | 태그명 | 등록시각)
  */
 function getTagsFromSheet() {
   try {
@@ -589,15 +590,19 @@ function getTagsFromSheet() {
     }
     
     var sheet = ss.getSheetByName('태그관리');
+    var nowIso = new Date().toISOString();
+    var defaultSubjects = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'];
+    var defaultReasons = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참'];
+
     if (!sheet) {
       sheet = ss.insertSheet('태그관리');
-      sheet.appendRow(['보강교과', '보강사유']);
-      sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
-      var defaultSubjects = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'];
-      var defaultReasons = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참'];
-      var maxLen = Math.max(defaultSubjects.length, defaultReasons.length);
-      for (var i = 0; i < maxLen; i++) {
-        sheet.appendRow([defaultSubjects[i] || '', defaultReasons[i] || '']);
+      sheet.appendRow(['구분', '태그명', '등록시각']);
+      sheet.getRange(1, 1, 1, 3).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+      for (var s = 0; s < defaultSubjects.length; s++) {
+        sheet.appendRow(['SUBJECT', defaultSubjects[s], nowIso]);
+      }
+      for (var r = 0; r < defaultReasons.length; r++) {
+        sheet.appendRow(['REASON', defaultReasons[r], nowIso]);
       }
       SpreadsheetApp.flush();
     }
@@ -609,20 +614,19 @@ function getTagsFromSheet() {
     if (lastRow > 1) {
       var data = sheet.getDataRange().getValues();
       var col1Header = String(data[0][0] || '').trim();
+      var col2Header = String(data[0][1] || '').trim();
       
-      if (col1Header.indexOf('구분') !== -1) {
-        for (var i = 1; i < data.length; i++) {
-          var type = String(data[i][0] || '').trim();
-          var val = String(data[i][1] || '').trim();
-          if (!val) continue;
-          if (type.indexOf('교과') !== -1 && subjectTags.indexOf(val) === -1) {
-            subjectTags.push(val);
-          } else if (type.indexOf('사유') !== -1 && reasonTags.indexOf(val) === -1) {
-            reasonTags.push(val);
-          }
-        }
-      } else {
-        for (var i = 1; i < data.length; i++) {
+      for (var i = 1; i < data.length; i++) {
+        var type = String(data[i][0] || '').trim().toUpperCase();
+        var val = String(data[i][1] || '').trim();
+        
+        if (!type && !val) continue;
+        
+        if ((type === 'SUBJECT' || type.indexOf('교과') !== -1 || type.indexOf('SUBJECT') !== -1) && val) {
+          if (subjectTags.indexOf(val) === -1) subjectTags.push(val);
+        } else if ((type === 'REASON' || type.indexOf('사유') !== -1 || type.indexOf('REASON') !== -1) && val) {
+          if (reasonTags.indexOf(val) === -1) reasonTags.push(val);
+        } else if (col1Header.indexOf('보강교과') !== -1 || col2Header.indexOf('보강사유') !== -1) {
           var subj = String(data[i][0] || '').trim();
           var reas = String(data[i][1] || '').trim();
           if (subj && subjectTags.indexOf(subj) === -1) subjectTags.push(subj);
@@ -632,10 +636,10 @@ function getTagsFromSheet() {
     }
     
     if (subjectTags.length === 0) {
-      subjectTags = ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'];
+      subjectTags = defaultSubjects;
     }
     if (reasonTags.length === 0) {
-      reasonTags = ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참'];
+      reasonTags = defaultReasons;
     }
     
     return {
@@ -648,14 +652,15 @@ function getTagsFromSheet() {
     return {
       success: false,
       error: e.toString(),
-      subjectTags: ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보'],
-      reasonTags: ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출']
+      subjectTags: ['국어', '수학', '영어', '사회', '과학', '체육', '음악', '미술', '정보', '세계 문화와 영어A'],
+      reasonTags: ['출장', '연가', '병가', '공가', '특별휴가', '조퇴', '외출', '지참']
     };
   }
 }
 
 /**
  * '태그관리' 시트에 보강 교과 및 보강 유발 사유 태그 목록을 저장합니다.
+ * (구조: 구분[SUBJECT/REASON] | 태그명 | 등록시각)
  */
 function saveTagsToSheet(subjectTags, reasonTags) {
   try {
@@ -673,18 +678,25 @@ function saveTagsToSheet(subjectTags, reasonTags) {
       sheet = ss.insertSheet('태그관리');
     }
     sheet.clearContents();
-    sheet.getRange(1, 1, 1, 2).setValues([['보강교과', '보강사유']]).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    
+    sheet.getRange(1, 1, 1, 3).setValues([['구분', '태그명', '등록시각']]).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
     
     var sTags = Array.isArray(subjectTags) ? subjectTags : [];
     var rTags = Array.isArray(reasonTags) ? reasonTags : [];
-    var maxLen = Math.max(sTags.length, rTags.length);
+    var nowIso = new Date().toISOString();
+    var rows = [];
     
-    if (maxLen > 0) {
-      var rows = [];
-      for (var i = 0; i < maxLen; i++) {
-        rows.push([sTags[i] || '', rTags[i] || '']);
-      }
-      sheet.getRange(2, 1, rows.length, 2).setValues(rows);
+    for (var s = 0; s < sTags.length; s++) {
+      var sVal = String(sTags[s] || '').trim();
+      if (sVal) rows.push(['SUBJECT', sVal, nowIso]);
+    }
+    for (var r = 0; r < rTags.length; r++) {
+      var rVal = String(rTags[r] || '').trim();
+      if (rVal) rows.push(['REASON', rVal, nowIso]);
+    }
+    
+    if (rows.length > 0) {
+      sheet.getRange(2, 1, rows.length, 3).setValues(rows);
     }
     SpreadsheetApp.flush();
     return { success: true };
