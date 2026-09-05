@@ -1057,6 +1057,8 @@
             <button class="btn btn-outline btn-sm btn-preset" id="btnLastMonth" onclick="setLastMonthDate()">지난달</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnLastWeek" onclick="setLastWeekDate()">지난주</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnToday" onclick="setTodayDate()">오늘</button>
+            <button class="btn btn-outline btn-sm btn-preset" id="btnTomorrow" onclick="setTomorrowDate()">내일</button>
+            <button class="btn btn-outline btn-sm btn-preset" id="btnDayAfterTomorrow" onclick="setDayAfterTomorrowDate()">모레</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnThisWeek" onclick="setThisWeekDate()">이번주</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnNextWeek" onclick="setNextWeekDate()">다음주</button>
             <button class="btn btn-outline btn-sm btn-preset" id="btnThisMonth" onclick="setThisMonthDate()">이번달</button>
@@ -1843,6 +1845,26 @@
       document.getElementById('filterStartDate').value = today;
       document.getElementById('filterEndDate').value = today;
       setActivePresetBtn('btnToday');
+      renderAuctionTable();
+    }
+
+    function setTomorrowDate() {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = formatDisplayDateRaw(tomorrow);
+      document.getElementById('filterStartDate').value = tomorrowStr;
+      document.getElementById('filterEndDate').value = tomorrowStr;
+      setActivePresetBtn('btnTomorrow');
+      renderAuctionTable();
+    }
+
+    function setDayAfterTomorrowDate() {
+      const dat = new Date();
+      dat.setDate(dat.getDate() + 2);
+      const datStr = formatDisplayDateRaw(dat);
+      document.getElementById('filterStartDate').value = datStr;
+      document.getElementById('filterEndDate').value = datStr;
+      setActivePresetBtn('btnDayAfterTomorrow');
       renderAuctionTable();
     }
 
