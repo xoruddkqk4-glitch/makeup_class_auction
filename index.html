@@ -1066,7 +1066,7 @@
 
         <div class="header-controls-right">
           <button class="btn btn-primary btn-sm" onclick="openAddModal()">
-            <i class="fa-solid fa-plus"></i> 보강 지원 등록하기
+            <i class="fa-solid fa-plus"></i> 결강 등록하기
           </button>
         </div>
       </div>
@@ -1207,7 +1207,7 @@
   <div id="addAuctionModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-header">
-        <span><i class="fa-solid fa-pen-to-square"></i> 보강 수업 등록</span>
+        <span><i class="fa-solid fa-pen-to-square"></i> 결강 수업 등록</span>
         <button class="btn-close-modal" onclick="closeAddModal()">&times;</button>
       </div>
       <div class="modal-body">
@@ -1296,7 +1296,7 @@
 
               <div style="margin-top: 32px;">
                 <button type="submit" id="btnSubmitForm" class="btn-submit-main">
-                  🚀 보강 지원 등록하기
+                  🚀 결강 등록하기
                 </button>
               </div>
             </div>
@@ -2089,7 +2089,7 @@
             <td colspan="10" class="empty-state">
               <i class="fa-regular fa-folder-open"></i>
               <h3 style="font-size: 1.1rem; color: #475569; margin-top: 8px;">등록되거나 검색된 보강 지원 항목이 없습니다</h3>
-              <p style="margin-top: 4px; font-size: 0.85rem;">우측 상단 [+ 보강 지원 등록하기] 버튼으로 새 지원 항목을 등록하거나 필터를 변경해 주세요.</p>
+              <p style="margin-top: 4px; font-size: 0.85rem;">우측 상단 [+ 결강 등록하기] 버튼으로 새 지원 항목을 등록하거나 필터를 변경해 주세요.</p>
             </td>
           </tr>
         `;
@@ -2375,7 +2375,7 @@
         google.script.run
           .withSuccessHandler(res => {
             btn.disabled = false;
-            btn.innerText = '🚀 보강 지원 등록하기';
+            btn.innerText = '🚀 결강 등록하기';
 
             if (res.success) {
               showToast(res.message, 'success');
@@ -2393,14 +2393,14 @@
           })
           .withFailureHandler(err => {
             btn.disabled = false;
-            btn.innerText = '🚀 보강 지원 등록하기';
+            btn.innerText = '🚀 결강 등록하기';
             onApiError(err);
           })
           .addAuctionRecord(record);
       } else {
         setTimeout(() => {
           btn.disabled = false;
-          btn.innerText = '🚀 보강 지원 등록하기';
+          btn.innerText = '🚀 결강 등록하기';
           rawAuctions.unshift({
             id: 'AUC-' + Date.now(),
             date: record.date,
