@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>보강 경매 시스템</title>
+  <title>보강 지원 시스템</title>
   <!-- Google Fonts: Noto Sans KR & Outfit -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1031,16 +1031,16 @@
     <!-- Header -->
     <header class="app-header">
       <h1 class="app-title">
-        <i class="fa-solid fa-scale-balanced" style="color: var(--primary-color);"></i> 보강 경매 시스템
+        <i class="fa-solid fa-hands-holding-circle" style="color: var(--primary-color);"></i> 보강 지원 시스템
         <span id="currentDateLabel" class="header-date-badge"></span>
       </h1>
     </header>
 
-    <!-- 보강 경매 목록 테이블 (홍익-보강 알리미 통합 툴바 & 필터 표준 통일) -->
+    <!-- 보강 지원 목록 테이블 (홍익-보강 알리미 통합 툴바 & 필터 표준 통일) -->
     <main class="table-card">
       <div class="table-header-title">
         <div class="header-controls-left">
-          <span class="header-title-text"><i class="fa-solid fa-table-list" style="color: var(--primary-color);"></i> 보강 경매 목록</span>
+          <span class="header-title-text"><i class="fa-solid fa-table-list" style="color: var(--primary-color);"></i> 보강 지원 목록</span>
           
           <div class="range-picker-wrap">
             <i class="fa-regular fa-calendar-days" style="color: var(--primary-color);"></i>
@@ -1066,7 +1066,7 @@
 
         <div class="header-controls-right">
           <button class="btn btn-primary btn-sm" onclick="openAddModal()">
-            <i class="fa-solid fa-plus"></i> 보강 경매 등록하기
+            <i class="fa-solid fa-plus"></i> 보강 지원 등록하기
           </button>
         </div>
       </div>
@@ -1194,7 +1194,7 @@
             <tr>
               <td colspan="8" style="text-align: center; padding: 40px;">
                 <div class="spinner"></div>
-                <p style="margin-top: 10px; color: var(--text-muted);">보강 경매 데이터를 불러오는 중입니다...</p>
+                <p style="margin-top: 10px; color: var(--text-muted);">보강 지원 데이터를 불러오는 중입니다...</p>
               </td>
             </tr>
           </tbody>
@@ -1296,7 +1296,7 @@
 
               <div style="margin-top: 32px;">
                 <button type="submit" id="btnSubmitForm" class="btn-submit-main">
-                  🚀 보강 경매 등록하기
+                  🚀 보강 지원 등록하기
                 </button>
               </div>
             </div>
@@ -1306,11 +1306,11 @@
     </div>
   </div>
 
-  <!-- 보강 경매 수정 모달 (#editAuctionModal) -->
+  <!-- 보강 지원 수정 모달 (#editAuctionModal) -->
   <div id="editAuctionModal" class="modal-overlay">
     <div class="modal-box">
       <div class="modal-header">
-        <span><i class="fa-solid fa-pen-to-square"></i> 보강 경매 수정</span>
+        <span><i class="fa-solid fa-pen-to-square"></i> 보강 지원 수정</span>
         <button class="btn-close-modal" onclick="closeEditModal()">&times;</button>
       </div>
       <div class="modal-body">
@@ -1399,7 +1399,7 @@
 
               <div style="margin-top: 32px;">
                 <button type="submit" id="btnSubmitEditForm" class="btn-submit-main">
-                  ✏️ 보강 경매 수정 완료
+                  ✏️ 보강 지원 수정 완료
                 </button>
               </div>
             </div>
@@ -2088,8 +2088,8 @@
           <tr>
             <td colspan="10" class="empty-state">
               <i class="fa-regular fa-folder-open"></i>
-              <h3 style="font-size: 1.1rem; color: #475569; margin-top: 8px;">등록되거나 검색된 보강 경매 항목이 없습니다</h3>
-              <p style="margin-top: 4px; font-size: 0.85rem;">우측 상단 [+ 보강 경매 등록하기] 버튼으로 새 경매를 등록하거나 필터를 변경해 주세요.</p>
+              <h3 style="font-size: 1.1rem; color: #475569; margin-top: 8px;">등록되거나 검색된 보강 지원 항목이 없습니다</h3>
+              <p style="margin-top: 4px; font-size: 0.85rem;">우측 상단 [+ 보강 지원 등록하기] 버튼으로 새 지원 항목을 등록하거나 필터를 변경해 주세요.</p>
             </td>
           </tr>
         `;
@@ -2141,10 +2141,10 @@
             </td>
             <td>
               <div style="display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
-                <button class="btn-edit-sm" title="경매 항목 수정" data-id="${escapeHtml(String(item.id))}" onclick="openEditModal(this.getAttribute('data-id'))">
+                <button class="btn-edit-sm" title="보강 지원 항목 수정" data-id="${escapeHtml(String(item.id))}" onclick="openEditModal(this.getAttribute('data-id'))">
                   <i class="fa-regular fa-pen-to-square" style="pointer-events: none;"></i>
                 </button>
-                <button class="btn-del-sm" title="경매 삭제" data-id="${escapeHtml(String(item.id))}" onclick="deleteAuction(this.getAttribute('data-id'))">
+                <button class="btn-del-sm" title="보강 지원 삭제" data-id="${escapeHtml(String(item.id))}" onclick="deleteAuction(this.getAttribute('data-id'))">
                   <i class="fa-regular fa-trash-can" style="pointer-events: none;"></i>
                 </button>
               </div>
@@ -2375,7 +2375,7 @@
         google.script.run
           .withSuccessHandler(res => {
             btn.disabled = false;
-            btn.innerText = '🚀 보강 경매 등록하기';
+            btn.innerText = '🚀 보강 지원 등록하기';
 
             if (res.success) {
               showToast(res.message, 'success');
@@ -2393,14 +2393,14 @@
           })
           .withFailureHandler(err => {
             btn.disabled = false;
-            btn.innerText = '🚀 보강 경매 등록하기';
+            btn.innerText = '🚀 보강 지원 등록하기';
             onApiError(err);
           })
           .addAuctionRecord(record);
       } else {
         setTimeout(() => {
           btn.disabled = false;
-          btn.innerText = '🚀 보강 경매 등록하기';
+          btn.innerText = '🚀 보강 지원 등록하기';
           rawAuctions.unshift({
             id: 'AUC-' + Date.now(),
             date: record.date,
@@ -2420,7 +2420,7 @@
       }
     }
 
-    // 보강 경매 수정 모달 관련 핸들러
+    // 보강 지원 수정 모달 관련 핸들러
     function openEditModal(id) {
       try {
         const targetId = String(id || '').trim();
@@ -2590,7 +2590,7 @@
         google.script.run
           .withSuccessHandler(res => {
             btn.disabled = false;
-            btn.innerText = '✏️ 보강 경매 수정 완료';
+            btn.innerText = '✏️ 보강 지원 수정 완료';
             if (res.success) {
               showToast(res.message, 'success');
               closeEditModal();
@@ -2602,14 +2602,14 @@
           })
           .withFailureHandler(err => {
             btn.disabled = false;
-            btn.innerText = '✏️ 보강 경매 수정 완료';
+            btn.innerText = '✏️ 보강 지원 수정 완료';
             onApiError(err);
           })
           .updateAuctionRecord(record);
       } else {
         setTimeout(() => {
           btn.disabled = false;
-          btn.innerText = '✏️ 보강 경매 수정 완료';
+          btn.innerText = '✏️ 보강 지원 수정 완료';
           const target = rawAuctions.find(a => String(a.id) === String(idVal));
           if (target) {
             target.date = record.date;
@@ -2619,7 +2619,7 @@
             target.originalTeacher = record.originalTeacher;
             target.reason = record.reason;
           }
-          showToast('보강 경매 항목이 수정되었습니다!', 'success');
+          showToast('보강 지원 항목이 수정되었습니다!', 'success');
           closeEditModal();
           renderAuctionTable();
           notifyDataChanged();
@@ -2629,7 +2629,7 @@
 
     // Delete Auction Record
     function deleteAuction(id) {
-      if (!confirm('이 보강 경매 등록을 정말 취소/삭제하시겠습니까?')) return;
+      if (!confirm('이 보강 지원 등록을 정말 취소/삭제하시겠습니까?')) return;
 
       if (typeof google !== 'undefined' && google.script && google.script.run) {
         google.script.run

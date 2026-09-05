@@ -1,10 +1,10 @@
 /**
- * 홍익_보강 경매 (Google Apps Script Backend)
+ * 홍익_보강 지원 (Google Apps Script Backend)
  * 
  * 구글 스프레드시트 연동:
  * - Spreadsheet ID: 1LsST_QqLkRIDQNvbeXw5EeCncJCEEOqAsC2duSngOcM
  * - 보강내역 시트: 홍익-보강 알리미 공유 확정 DB
- * - 보강경매 시트: 미신청 보강 경매 DB
+ * - 보강지원 시트: 미신청 보강 지원 DB
  */
 
 // 기본 연결 구글 스프레드시트 ID
@@ -13,7 +13,7 @@ var DEFAULT_SPREADSHEET_ID = '1LsST_QqLkRIDQNvbeXw5EeCncJCEEOqAsC2duSngOcM';
 function doGet(e) {
   var htmlOutput = HtmlService.createTemplateFromFile('index').evaluate();
   htmlOutput
-    .setTitle('홍익 보강 경매 | 온라인 교무실')
+    .setTitle('홍익 보강 지원 시스템 | 온라인 교무실')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0');
   return htmlOutput;
@@ -59,10 +59,16 @@ function getDbSpreadsheet() {
     mainSheet.setFrozenRows(1);
   }
 
-  // 2. '보강경매' 시트 확인 및 생성 (미신청 사전 계획 보강 경매 DB)
-  var auctionSheet = ss.getSheetByName('보강경매');
+  // 2. '보강지원' 시트 확인 및 생성 (미신청 사전 계획 보강 지원 DB)
+  var auctionSheet = ss.getSheetByName('보강지원') || ss.getSheetByName('보강경매');
   if (!auctionSheet) {
-    auctionSheet = ss.insertSheet('보강경매');
+    auctionSheet = ss.insertSheet('보강지원');
+  } else if (auctionSheet.getName() === '보강경매') {
+    try {
+      auctionSheet.setName('보강지원');
+    } catch (e) {
+      // 시트명 변경 중 예외 처리
+    }
   }
   if (auctionSheet.getLastRow() === 0) {
     auctionSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '사유', '등록시각', '보강교사', '수업계확인']);
@@ -129,9 +135,9 @@ function clearAuctionCache() {
 }
 
 /**
- * 현재 보강 경매 목록을 조회합니다. (CacheService 30ms 초고속 캐싱 적용)
- * - 전날 13시 경과 항목: 비활성화 처리 (isClosed = true)
- * - 보강 날짜 지난 항목: '보강경매' 시트에서 자동 정리
+ * 현재 보강 지원 목록을 조회합니다. (CacheService 30ms 초고속 캐싱 적용)
+ * - 유효성 검사 및 정렬 수행
+ * - 보강 날짜 지난 항목: '보강지원' 시트에서 자동 정리
  */
 function getAuctionRecords(bypassCache) {
   try {
@@ -228,12 +234,12 @@ function getAuctionRecords(bypassCache) {
     return records;
   } catch (err) {
     Logger.log('Error in getAuctionRecords: ' + err.toString());
-    throw new Error('보강 경매 목록을 불러오는데 실패했습니다: ' + err.message);
+    throw new Error('보강 지원 목록을 불러오는데 실패했습니다: ' + err.message);
   }
 }
 
 /**
- * 신규 보강 경매 항목을 등록합니다. (사전 계획 보강 전용)
+ * 신규 보강 지원 항목을 등록합니다. (사전 계획 보강 전용)
  * 제한 조건:
  * - 당일 5교시 ~ 7교시 등록 불가 ('마감 시간이 초과되어 등록할 수 없습니다.')
  * - 익일(다음날) 1교시 ~ 4교시 등록 불가 ('마감 시간이 초과되어 등록할 수 없습니다.')
@@ -260,7 +266,7 @@ function addAuctionRecord(record) {
 
     // 이미 지난 날짜 등록 방지
     if (formattedDate < todayStr) {
-      throw new Error('이미 지난 날짜의 수업은 경매로 등록할 수 없습니다.');
+      throw new Error('이미 지난 날짜의 수업은 보강 지원으로 등록할 수 없습니다.');
     }
 
     // 1. 당일 5교시 ~ 7교시 등록 제한
@@ -295,7 +301,7 @@ function addAuctionRecord(record) {
     return {
       success: true,
       id: newId,
-      message: '보강 경매 수업이 성공적으로 등록되었습니다.'
+      message: '보강 지원 수업이 성공적으로 등록되었습니다.'
     };
   } catch (err) {
     Logger.log('Error in addAuctionRecord: ' + err.toString());
@@ -307,14 +313,14 @@ function addAuctionRecord(record) {
 }
 
 /**
- * 보강 경매를 신청(접수) 또는 취소합니다.
- * - 바로 '보강내역'으로 넘기지 않고, '보강경매' 시트의 '보강교사' 정보를 갱신합니다.
+ * 보강 지원을 신청(접수) 또는 취소합니다.
+ * - 바로 '보강내역'으로 넘기지 않고, '보강지원' 시트의 '보강교사' 정보를 갱신합니다.
  * - substituteTeacher가 빈값인 경우 신청 취소 처리됩니다.
  */
 function claimAuctionRecord(auctionId, substituteTeacher) {
   try {
     if (!auctionId) {
-      throw new Error('경매 ID가 누락되었습니다.');
+      throw new Error('등록 ID가 누락되었습니다.');
     }
 
     var db = getDbSpreadsheet();
@@ -333,7 +339,7 @@ function claimAuctionRecord(auctionId, substituteTeacher) {
     }
 
     if (foundIndex === -1 || !targetRow) {
-      return { success: false, message: '해당 경매 항목을 찾을 수 없습니다.' };
+      return { success: false, message: '해당 보강 지원 항목을 찾을 수 없습니다.' };
     }
 
     var dateStr = formatDateString(targetRow[1]);
@@ -342,12 +348,12 @@ function claimAuctionRecord(auctionId, substituteTeacher) {
     // 전날 13시 경과 검사
     var deadline = getDeadlineDate(dateStr);
     if (deadline && now.getTime() >= deadline.getTime()) {
-      return { success: false, message: '해당 경매는 전날 13시가 지나 처리가 마감되었습니다.' };
+      return { success: false, message: '해당 보강 지원건은 전날 13시가 지나 처리가 마감되었습니다.' };
     }
 
     var cleanTeacherName = substituteTeacher ? String(substituteTeacher).trim() : '';
 
-    // 보강경매 시트에 보강교사 업데이트 및 수업계확인 false 유지
+    // 보강지원 시트에 보강교사 업데이트 및 수업계확인 false 유지
     auctionSheet.getRange(foundIndex, 9).setValue(cleanTeacherName); // 9번째 열: 보강교사
     auctionSheet.getRange(foundIndex, 10).setValue(false);            // 10번째 열: 수업계확인
     SpreadsheetApp.flush();
@@ -375,8 +381,8 @@ function claimAuctionRecord(auctionId, substituteTeacher) {
 
 /**
  * 업무 담당자가 '수업계 확인' 토글을 변경할 때 실행됩니다.
- * - isApproved가 true일 때: '보강내역'(보강 알리미 공유 시트)으로 데이터 이관 및 '보강경매' 시트에서 삭제
- * - isApproved가 false일 때: '보강경매' 시트의 수업계확인 필드만 false로 유지
+ * - isApproved가 true일 때: '보강내역'(보강 알리미 공유 시트)으로 데이터 이관 및 '보강지원' 시트에서 삭제
+ * - isApproved가 false일 때: '보강지원' 시트의 수업계확인 필드만 false로 유지
  */
 function toggleAcademicApproval(auctionId, isApproved) {
   try {
@@ -397,7 +403,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
     }
 
     if (foundIndex === -1 || !targetRow) {
-      return { success: false, message: '해당 경매 항목을 찾을 수 없습니다.' };
+      return { success: false, message: '해당 보강 지원 항목을 찾을 수 없습니다.' };
     }
 
     var substituteTeacher = targetRow[8] ? String(targetRow[8]).trim() : '';
@@ -432,7 +438,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
         false  // 긴급여부 false
       ]);
 
-      // 2. 보강경매 시트에서 삭제 (이관 완료)
+      // 2. 보강지원 시트에서 삭제 (이관 완료)
       auctionSheet.deleteRow(foundIndex);
       SpreadsheetApp.flush();
       clearAuctionCache();
@@ -461,7 +467,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
 }
 
 /**
- * 등록자가 경매 항목을 취소/삭제합니다.
+ * 등록자가 보강 지원 항목을 취소/삭제합니다.
  */
 function deleteAuctionRecord(auctionId) {
   try {
@@ -474,10 +480,10 @@ function deleteAuctionRecord(auctionId) {
         sheet.deleteRow(i + 1);
         SpreadsheetApp.flush();
         clearAuctionCache();
-        return { success: true, message: '보강 경매 등록이 취소/삭제되었습니다.' };
+        return { success: true, message: '보강 지원 등록이 취소/삭제되었습니다.' };
       }
     }
-    return { success: false, message: '해당 경매 항목을 찾을 수 없습니다.' };
+    return { success: false, message: '해당 보강 지원 항목을 찾을 수 없습니다.' };
   } catch (err) {
     Logger.log('Error in deleteAuctionRecord: ' + err.toString());
     return { success: false, message: err.message };
@@ -485,7 +491,7 @@ function deleteAuctionRecord(auctionId) {
 }
 
 /**
- * 등록자가 경매 항목을 수정합니다. (마감 기한 항목도 수정 가능)
+ * 등록자가 보강 지원 항목을 수정합니다. (마감 기한 항목도 수정 가능)
  */
 function updateAuctionRecord(record) {
   try {
@@ -510,10 +516,10 @@ function updateAuctionRecord(record) {
         sheet.getRange(rowIndex, 7).setValue(record.reason || '');
         SpreadsheetApp.flush();
         clearAuctionCache();
-        return { success: true, message: '보강 경매 항목이 성공적으로 수정되었습니다.' };
+        return { success: true, message: '보강 지원 항목이 성공적으로 수정되었습니다.' };
       }
     }
-    return { success: false, message: '수정할 경매 항목을 찾을 수 없습니다.' };
+    return { success: false, message: '수정할 보강 지원 항목을 찾을 수 없습니다.' };
   } catch (err) {
     Logger.log('Error in updateAuctionRecord: ' + err.toString());
     return { success: false, message: err.message || '수정 중 오류가 발생했습니다.' };
