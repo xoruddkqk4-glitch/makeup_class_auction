@@ -54,9 +54,13 @@ function getDbSpreadsheet() {
     mainSheet = ss.insertSheet('보강내역');
   }
   if (mainSheet.getLastRow() === 0) {
-    mainSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '보강교사', '사유', '등록시각', '확인여부', '긴급여부']);
-    mainSheet.getRange(1, 1, 1, 11).setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
+    mainSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '보강교사', '사유', '등록시각', '확인여부', '긴급여부', '삭제여부']);
+    mainSheet.getRange(1, 1, 1, 12).setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
     mainSheet.setFrozenRows(1);
+  } else {
+    if (mainSheet.getLastColumn() < 12 || mainSheet.getRange(1, 12).getValue() === '') {
+      mainSheet.getRange(1, 12).setValue('삭제여부').setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
+    }
   }
 
   // 2. '보강지원' 시트 확인 및 생성 (미신청 사전 계획 보강 지원 DB)
@@ -71,9 +75,13 @@ function getDbSpreadsheet() {
     }
   }
   if (auctionSheet.getLastRow() === 0) {
-    auctionSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '사유', '등록시각', '보강교사', '수업계확인']);
-    auctionSheet.getRange(1, 1, 1, 10).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    auctionSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '사유', '등록시각', '보강교사', '수업계확인', '삭제여부']);
+    auctionSheet.getRange(1, 1, 1, 11).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
     auctionSheet.setFrozenRows(1);
+  } else {
+    if (auctionSheet.getLastColumn() < 11 || auctionSheet.getRange(1, 11).getValue() === '') {
+      auctionSheet.getRange(1, 11).setValue('삭제여부').setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    }
   }
 
   return {
@@ -174,6 +182,10 @@ function getAuctionRecords(bypassCache) {
 
       var rowDateStr = formatDateString(row[1]);
 
+      // 삭제 처리된 행은 웹 화면에서 제외 (Soft Delete)
+      var isDeleted = (row[10] === true || String(row[10]).toLowerCase() === 'true' || String(row[10]) === 'y');
+      if (isDeleted) continue;
+
       // 1. 날짜가 지난 미신청 보강 목록은 자동 삭제 대상
       if (rowDateStr < todayStr) {
         rowsToDelete.push(i + 1); // 1-indexed row number
@@ -223,10 +235,10 @@ function getAuctionRecords(bypassCache) {
       Logger.log('Cache put warning: ' + e.toString());
     }
 
-    // 날짜 지난 항목 역순으로 백그라운드 자동 삭제
+    // 날짜 지난 항목은 시트 행을 지우지 않고 '삭제여부'를 true로 설정 (Soft Delete)
     if (rowsToDelete.length > 0) {
-      for (var d = rowsToDelete.length - 1; d >= 0; d--) {
-        sheet.deleteRow(rowsToDelete[d]);
+      for (var d = 0; d < rowsToDelete.length; d++) {
+        sheet.getRange(rowsToDelete[d], 11).setValue(true);
       }
       SpreadsheetApp.flush();
     }
@@ -292,7 +304,8 @@ function addAuctionRecord(record) {
       record.reason || '',
       nowIso,
       '',    // 보강교사 (초기 빈값)
-      false  // 수업계확인 (기본 false)
+      false, // 수업계확인 (기본 false)
+      false  // 삭제여부 (기본 false)
     ]);
 
     SpreadsheetApp.flush();
@@ -423,7 +436,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
       var reason = String(targetRow[6] || '');
       var nowIso = now.toISOString();
 
-      // 1. 보강내역 시트로 데이터 이관 (확인여부 true: 수업계 확인 완료 연동)
+      // 1. 보강내역 시트로 데이터 이관 (확인여부 true: 수업계 확인 완료 연동, 삭제여부 false)
       mainSheet.appendRow([
         subId,
         dateStr,
@@ -435,11 +448,12 @@ function toggleAcademicApproval(auctionId, isApproved) {
         reason,
         nowIso,
         true,  // 확인여부 true
-        false  // 긴급여부 false
+        false, // 긴급여부 false
+        false  // 삭제여부 false
       ]);
 
-      // 2. 보강지원 시트에서 삭제 (이관 완료)
-      auctionSheet.deleteRow(foundIndex);
+      // 2. 보강지원 시트에서 이관 완료 처리 (Soft Delete)
+      auctionSheet.getRange(foundIndex, 11).setValue(true);
       SpreadsheetApp.flush();
       clearAuctionCache();
 
@@ -477,10 +491,10 @@ function deleteAuctionRecord(auctionId) {
 
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][0]) === String(auctionId)) {
-        sheet.deleteRow(i + 1);
+        auctionSheet.getRange(i + 1, 11).setValue(true);
         SpreadsheetApp.flush();
         clearAuctionCache();
-        return { success: true, message: '보강 지원 등록이 취소/삭제되었습니다.' };
+        return { success: true, message: '보강 지원 등록이 취소/삭제되었습니다. (시트 데이터는 영구 보존됩니다)' };
       }
     }
     return { success: false, message: '해당 보강 지원 항목을 찾을 수 없습니다.' };
@@ -540,6 +554,10 @@ function getConfirmedRecords() {
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
       if (!row[0]) continue;
+
+      // 삭제 처리된 이관 내역 제외
+      var isDeleted = (row[11] === true || String(row[11]).toLowerCase() === 'true' || String(row[11]) === 'y');
+      if (isDeleted) continue;
 
       records.push({
         id: String(row[0]),
