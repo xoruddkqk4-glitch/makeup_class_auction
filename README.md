@@ -89,6 +89,12 @@
 
 ---
 
+## 📋 최근 수정 사항 (Latest Updates)
+
+- **`git-commit` 스킬 하드코딩 경로 동적 전환**: `.agents/skills/git-commit/SKILL.md` 내 하드코딩되어 있던 `README.md` 경로를 대상 프로젝트 루트의 `README.md`를 가리키도록 동적 참조로 수정
+
+---
+
 ## 🛠️ script.google.com 배포 안내 (Deployment Guide)
 
 1. **[script.google.com](https://script.google.com) 접속** 및 **새 프로젝트 생성** (프로젝트명: `홍익_보강 지원`).

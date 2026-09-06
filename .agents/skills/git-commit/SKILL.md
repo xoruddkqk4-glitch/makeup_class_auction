@@ -14,7 +14,7 @@ description: Triggered by '/git-commit', '/action git-commit', or requests to up
    - 실제 변경된 코드, 설정 파일 및 문서 내역을 검토합니다.
 
 2. **README.md 문서 업데이트**:
-   - 변경 사항 및 새로 추가되거나 검증된 기능 내역을 프로젝트의 [`README.md`](file:///c:/Users/user/Desktop/web%20app/ai-tutor-app-main/README.md)에 상세하고 체계적으로 반영합니다.
+   - 변경 사항 및 새로 추가되거나 검증된 기능 내역을 대상 프로젝트 루트의 **`README.md`**에 상세하고 체계적으로 반영합니다.
 
 3. **상세 Git 커밋 메시지 작성**:
    - 요청 내용과 작업/검증 결과를 포함한 상세 커밋 메시지를 구성합니다.
