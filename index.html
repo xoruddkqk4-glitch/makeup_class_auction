@@ -1077,30 +1077,27 @@
         <table class="schedule-table">
           <thead>
             <tr>
-              <th id="th_date" class="sortable-th" style="width: 12%;" onclick="handleSort('date')" title="날짜 정렬">
+              <th id="th_date" class="sortable-th" style="width: 13%;" onclick="handleSort('date')" title="날짜 정렬">
                 날짜(요일) <i class="fa-solid fa-sort sort-icon" id="sortIcon_date"></i>
               </th>
-              <th id="th_period" class="sortable-th" style="width: 7%;" onclick="handleSort('period')" title="교시 정렬">
+              <th id="th_period" class="sortable-th" style="width: 8%;" onclick="handleSort('period')" title="교시 정렬">
                 교시 <i class="fa-solid fa-sort sort-icon" id="sortIcon_period"></i>
               </th>
-              <th id="th_className" class="sortable-th" style="width: 7%;" onclick="handleSort('className')" title="교실 정렬">
+              <th id="th_className" class="sortable-th" style="width: 8%;" onclick="handleSort('className')" title="교실 정렬">
                 교실 <i class="fa-solid fa-sort sort-icon" id="sortIcon_className"></i>
               </th>
-              <th id="th_subject" class="sortable-th" style="width: 9%;" onclick="handleSort('subject')" title="보강 교과 정렬">
+              <th id="th_subject" class="sortable-th" style="width: 10%;" onclick="handleSort('subject')" title="보강 교과 정렬">
                 보강 교과 <i class="fa-solid fa-sort sort-icon" id="sortIcon_subject"></i>
               </th>
-              <th id="th_originalTeacher" class="sortable-th" style="width: 9%;" onclick="handleSort('originalTeacher')" title="결강 교사 정렬">
+              <th id="th_originalTeacher" class="sortable-th" style="width: 11%;" onclick="handleSort('originalTeacher')" title="결강 교사 정렬">
                 결강 교사(원교사) <i class="fa-solid fa-sort sort-icon" id="sortIcon_originalTeacher"></i>
               </th>
-              <th id="th_reason" class="sortable-th" style="width: 9%;" onclick="handleSort('reason')" title="보강 사유 정렬">
-                보강 사유 <i class="fa-solid fa-sort sort-icon" id="sortIcon_reason"></i>
-              </th>
-              <th id="th_deadline" class="sortable-th" style="width: 13%;" onclick="handleSort('isClosed')" title="마감 상태 정렬">
+              <th id="th_deadline" class="sortable-th" style="width: 15%;" onclick="handleSort('isClosed')" title="마감 상태 정렬">
                 마감 시간 / 상태 <i class="fa-solid fa-sort sort-icon" id="sortIcon_isClosed"></i>
               </th>
-              <th style="width: 15%;">보강 신청</th>
-              <th style="width: 12%;">수업계 확인</th>
-              <th style="width: 7%;">작업</th>
+              <th style="width: 17%;">보강 신청</th>
+              <th style="width: 13%;">수업계 확인</th>
+              <th style="width: 5%;">작업</th>
             </tr>
             <!-- 열별 개별 필터 헤더 행 -->
             <tr class="filter-header-row">
@@ -1149,11 +1146,6 @@
               </th>
               <th>
                 <input type="text" class="col-filter-input" id="filterColOrigTeacher" placeholder="원교사 검색..." onkeyup="applyColumnFilters()">
-              </th>
-              <th>
-                <select class="col-filter-select" id="filterColReason" onchange="applyColumnFilters()">
-                  <option value="">전체 사유</option>
-                </select>
               </th>
               <th>
                 <div class="col-filter-btn-group">
@@ -2020,7 +2012,8 @@
       const fClass = document.getElementById('filterColClass').value;
       const fSubject = document.getElementById('filterColSubject').value;
       const fOrigTeacher = document.getElementById('filterColOrigTeacher').value.trim().toLowerCase();
-      const fReason = document.getElementById('filterColReason').value;
+      const fReasonElem = document.getElementById('filterColReason');
+      const fReason = fReasonElem ? fReasonElem.value : '';
 
       // 복수 선택 버튼 필터 상태 확인
       const statusOpenActive = document.querySelector('.btn-filter-open')?.classList.contains('active');
@@ -2130,7 +2123,6 @@
             <td><span class="badge-class-pill">${escapeHtml(item.className)}호</span></td>
             <td><span class="badge-subject-pill">${escapeHtml(item.subject)}</span></td>
             <td><span style="color: #e11d48; font-weight: 700;">${escapeHtml(item.originalTeacher)}</span></td>
-            <td>${item.reason ? `<span style="background: #fef3c7; color: #92400e; padding: 2px 6px; border-radius: 4px; font-size: 0.775rem; font-weight: 600;">${escapeHtml(item.reason)}</span>` : '-'}</td>
             <td>
               <div style="display: flex; align-items: center; justify-content: center; gap: 4px; white-space: nowrap;">
                 <span style="font-size: 0.725rem; color: var(--text-muted);"><i class="fa-regular fa-clock"></i> ${item.deadlineText ? item.deadlineText : '전날 13:00'}</span>
