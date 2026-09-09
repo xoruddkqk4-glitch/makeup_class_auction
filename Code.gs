@@ -92,6 +92,93 @@ function getDbSpreadsheet() {
 }
 
 /**
+ * 행의 삭제여부 값에 따라 시트 행 전체에 취소선(line-through)을 적용하거나 해제(none)합니다.
+ * @param {Sheet} sheet 구글 시트 개체
+ * @param {number} rowNum 1-indexed 행 번호
+ * @param {boolean} isDeleted 삭제 여부
+ * @param {number} [maxCols=11] 취소선 적용 대상 열 수
+ */
+function applyRowStrikethrough(sheet, rowNum, isDeleted, maxCols) {
+  try {
+    var cols = maxCols || sheet.getLastColumn() || 11;
+    sheet.getRange(rowNum, 1, 1, cols).setFontLine(isDeleted ? 'line-through' : 'none');
+  } catch (e) {
+    Logger.log('Error in applyRowStrikethrough for row ' + rowNum + ': ' + e.toString());
+  }
+}
+
+/**
+ * 구글 시트에 직접 수동 입력 시 (보강지원 및 보강내역 시트)
+ * 동적으로 ID, 등록시각, 기본값을 자동으로 채워주고 취소선을 적용해주는 트리거 함수
+ */
+function onEdit(e) {
+  try {
+    if (!e || !e.range) return;
+    var sheet = e.range.getSheet();
+    var sheetName = sheet.getName();
+    if (sheetName !== '보강지원' && sheetName !== '보강경매' && sheetName !== '보강내역') return;
+
+    var startRow = e.range.getRow();
+    var numRows = e.range.getNumRows();
+
+    // 헤더 행 제외
+    if (startRow <= 1) return;
+
+    var maxCols = sheet.getLastColumn() || 11;
+
+    for (var r = startRow; r < startRow + numRows; r++) {
+      var rowValues = sheet.getRange(r, 1, 1, maxCols).getValues()[0];
+      var hasContent = false;
+      for (var c = 1; c < Math.min(rowValues.length, 8); c++) {
+        if (rowValues[c]) { hasContent = true; break; }
+      }
+      if (!hasContent) continue;
+
+      if (sheetName === '보강내역') {
+        // 보강내역 (12열)
+        if (!rowValues[0]) {
+          sheet.getRange(r, 1).setValue('SUB-MANUAL-' + new Date().getTime() + '-' + r);
+        }
+        if (!rowValues[8]) {
+          sheet.getRange(r, 9).setValue(new Date().toISOString());
+        }
+        if (rowValues[9] === undefined || rowValues[9] === '') {
+          sheet.getRange(r, 10).setValue(false);
+        }
+        if (rowValues[10] === undefined || rowValues[10] === '') {
+          sheet.getRange(r, 11).setValue(false);
+        }
+        if (rowValues[11] === undefined || rowValues[11] === '') {
+          sheet.getRange(r, 12).setValue(false);
+          rowValues[11] = false;
+        }
+        var isDelMain = (rowValues[11] === true || String(rowValues[11]).toLowerCase() === 'true' || String(rowValues[11]) === 'y');
+        applyRowStrikethrough(sheet, r, isDelMain, 12);
+      } else {
+        // 보강지원 (11열)
+        if (!rowValues[0]) {
+          sheet.getRange(r, 1).setValue('AUC-MANUAL-' + new Date().getTime() + '-' + r);
+        }
+        if (!rowValues[7]) {
+          sheet.getRange(r, 8).setValue(new Date().toISOString());
+        }
+        if (rowValues[9] === undefined || rowValues[9] === '') {
+          sheet.getRange(r, 10).setValue(false);
+        }
+        if (rowValues[10] === undefined || rowValues[10] === '') {
+          sheet.getRange(r, 11).setValue(false);
+          rowValues[10] = false;
+        }
+        var isDelAuc = (rowValues[10] === true || String(rowValues[10]).toLowerCase() === 'true' || String(rowValues[10]) === 'y');
+        applyRowStrikethrough(sheet, r, isDelAuc, 11);
+      }
+    }
+  } catch (err) {
+    Logger.log('Error in onEdit: ' + err.toString());
+  }
+}
+
+/**
  * 날짜 객체 또는 문자열을 YYYY-MM-DD 포맷으로 변환하는 헬퍼 함수
  */
 function formatDateString(val) {
@@ -145,7 +232,7 @@ function clearAuctionCache() {
 /**
  * 현재 보강 지원 목록을 조회합니다. (CacheService 30ms 초고속 캐싱 적용)
  * - 유효성 검사 및 정렬 수행
- * - 보강 날짜 지난 항목: '보강지원' 시트에서 자동 정리
+ * - 보강 날짜 지난 항목: '보강지원' 시트에서 자동 정리 및 수동 작성 행 ID 자동 보정
  */
 function getAuctionRecords(bypassCache) {
   try {
@@ -175,15 +262,51 @@ function getAuctionRecords(bypassCache) {
 
     var records = [];
     var rowsToDelete = [];
+    var needsFlush = false;
 
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
-      if (!row[0]) continue; // ID 없는 행 스킵
+      var hasData = row[1] || row[2] || row[3] || row[4] || row[5] || row[6];
+      if (!hasData) continue; // 완전히 비어있는 행 스킵
+
+      // ID가 없는 수동 입력 행 자동 보정
+      var rowId = row[0] ? String(row[0]).trim() : '';
+      if (!rowId) {
+        rowId = 'AUC-MANUAL-' + new Date().getTime() + '-' + (i + 1);
+        sheet.getRange(i + 1, 1).setValue(rowId);
+        row[0] = rowId;
+        needsFlush = true;
+      }
+
+      // 등록시각 (8열) 보정
+      if (!row[7]) {
+        var nowIsoStr = new Date().toISOString();
+        sheet.getRange(i + 1, 8).setValue(nowIsoStr);
+        row[7] = nowIsoStr;
+        needsFlush = true;
+      }
+
+      // 수업계확인 (10열) 기본값 보정
+      if (row[9] === undefined || row[9] === '') {
+        sheet.getRange(i + 1, 10).setValue(false);
+        row[9] = false;
+        needsFlush = true;
+      }
+
+      // 삭제여부 (11열) 기본값 보정
+      if (row[10] === undefined || row[10] === '') {
+        sheet.getRange(i + 1, 11).setValue(false);
+        row[10] = false;
+        needsFlush = true;
+      }
 
       var rowDateStr = formatDateString(row[1]);
+      var isDeleted = (row[10] === true || String(row[10]).toLowerCase() === 'true' || String(row[10]) === 'y');
+
+      // 시트 행 취소선 적용/해제 동기화
+      applyRowStrikethrough(sheet, i + 1, isDeleted, 11);
 
       // 삭제 처리된 행은 웹 화면에서 제외 (Soft Delete)
-      var isDeleted = (row[10] === true || String(row[10]).toLowerCase() === 'true' || String(row[10]) === 'y');
       if (isDeleted) continue;
 
       // 1. 날짜가 지난 미신청 보강 목록은 자동 삭제 대상
@@ -218,6 +341,10 @@ function getAuctionRecords(bypassCache) {
       });
     }
 
+    if (needsFlush) {
+      SpreadsheetApp.flush();
+    }
+
     // 날짜 asc, 교시 asc 정렬
     records.sort(function(a, b) {
       if (a.date !== b.date) {
@@ -235,10 +362,11 @@ function getAuctionRecords(bypassCache) {
       Logger.log('Cache put warning: ' + e.toString());
     }
 
-    // 날짜 지난 항목은 시트 행을 지우지 않고 '삭제여부'를 true로 설정 (Soft Delete)
+    // 날짜 지난 항목은 시트 행을 지우지 않고 '삭제여부'를 true로 설정 (Soft Delete) 및 취소선 적용
     if (rowsToDelete.length > 0) {
       for (var d = 0; d < rowsToDelete.length; d++) {
         sheet.getRange(rowsToDelete[d], 11).setValue(true);
+        applyRowStrikethrough(sheet, rowsToDelete[d], true, 11);
       }
       SpreadsheetApp.flush();
     }

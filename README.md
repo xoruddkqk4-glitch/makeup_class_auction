@@ -91,11 +91,26 @@
 
 ## 📋 최근 수정 사항 (Latest Updates)
 
+- **코드 수정 없는 질의응답 및 계획서 전용 스킬 (`/ask`) 도입**: `.agents/skills/ask/SKILL.md` 신규 스킬 및 `.agents/rules/rules.md` 5번 정책 추가로 `/ask` 요청 시 코드 변경 없이 답변만 수행하거나 `implementation_plan.md` 작성 후 자동 실행을 완벽 차단하는 규칙 반영 완료
+- **구글 시트 직접 입력 행 자동 ID 및 시스템 필드 채우기 연동 (`onEdit(e)`)**: 사용자가 구글 시트(`보강지원`, `보강내역`)에서 행을 수동으로 입력하는 경우 `onEdit(e)` 및 백엔드 조회(`getAuctionRecords`)에서 ID(`AUC-MANUAL-timestamp-row`), 등록시각(ISO), 기본값(`수업계확인`: false, `삭제여부`: false) 자동 채우기 및 웹 화면 실시간 연동 구현 ([Code.gs](file:///c:/Users/user/Desktop/appsscript/21-%ED%99%8D%EC%9D%B5_%EB%B3%B4%EA%B0%95%20%EC%A7%80%EC%9B%90/Code.gs))
+- **구글 시트 '삭제여부' 취소선 동기화 (`applyRowStrikethrough`)**: 11번째 열('삭제여부') 값이 True인 경우 행 전체 텍스트에 취소선(`setFontLine('line-through')`) 자동 적용 및 False인 경우 취소선 해제 로직 연동 ([Code.gs](file:///c:/Users/user/Desktop/appsscript/21-%ED%99%8D%EC%9D%B5_%EB%B3%B4%EA%B0%95%20%EC%A7%80%EC%9B%90/Code.gs))
+- **상단 메인 타이틀 영역 실시간 새로 고침 버튼 추가**: 상단 헤더 영역('보강 지원 시스템' 제목 우측)에 실시간 새로 고침 버튼(`btnRefreshHeader`) 및 클릭 시 동적 회전 스핀 애니메이션과 데이터 갱신 피드백 구현 (`refreshHeaderData`) ([index.html](file:///c:/Users/user/Desktop/appsscript/21-%ED%99%8D%EC%9D%B5_%EB%B3%B4%EA%B0%95%20%EC%A7%80%EC%9B%90/index.html))
 - **선생님 개인정보 및 사유 보호를 위한 게시판 '보강 사유' 열 비노출 개편**: 교사들의 비공개 희망 사유 보호를 위해 웹 앱 지원 테이블 및 필터에서 '보강 사유' 열을 숨김 처리하고, 결강 등록 폼 입력 및 구글 시트 DB 기록 저장은 그대로 유지하여 담당 교사는 구글 시트에서 확인할 수 있도록 보안 및 업무 편의 강화
 - **구글 시트 데이터 보존을 위한 논리적 삭제(Soft Delete) 도입**: 웹 화면에서 보강 지원 취소/삭제 및 지난 항목 자동 정리 시 시트 행을 지우지 않고 `보강지원` 시트 11번째 열 `삭제여부`를 `true`로 저장하여 감사 이력 영구 보존
 - **`git-commit` 스킬 하드코딩 경로 동적 전환**: `.agents/skills/git-commit/SKILL.md` 내 하드코딩되어 있던 `README.md` 경로를 대상 프로젝트 루트의 `README.md`를 가리키도록 동적 참조로 수정
 
 ---
+
+## 📜 [2026-09-09 14:03] 업데이트 이력
+- **수정 내용**: `20-홍익-보강 알리미` 표준에 맞춰 구글 시트 수동 입력 자동 보정(`onEdit`), 삭제행 취소선 동기화(`applyRowStrikethrough`), 상단 헤더 실시간 새로 고침 버튼(`refreshHeaderData`) 적용 완료
+- **검증 결과**: 구문 검사 및 UI/백엔드 동기화 확인 완료
+
+
+## [2026-09-09 14:10] 업데이트 이력
+- **수정 내용**: 프로젝트 커스텀 `.agents`에 `/ask` 스킬 및 5번 전용 규칙(코드 수정 없는 질의응답 및 계획서 자동 실행 차단) 적용 완료 ([rules.md](file:///c:/Users/user/Desktop/appsscript/21-%ED%99%8D%EC%9D%B5_%EB%B3%B4%EA%B0%95%20%EC%A7%80%EC%9B%90/.agents/rules/rules.md), [SKILL.md](file:///c:/Users/user/Desktop/appsscript/21-%ED%99%8D%EC%9D%B5_%EB%B3%B4%EA%B0%95%20%EC%A7%80%EC%9B%90/.agents/skills/ask/SKILL.md))
+- **검증 결과**: `.agents` 스킬/규칙 정상 적용 및 README 이력 갱신 완료
+
+
 
 ## 🛠️ script.google.com 배포 안내 (Deployment Guide)
 

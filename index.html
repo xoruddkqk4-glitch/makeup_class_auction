@@ -81,6 +81,52 @@
       align-items: center;
     }
 
+    /* 상단 헤더 새로 고침 버튼 및 동적 회전 애니메이션 */
+    .btn-refresh-header {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      background: #ffffff;
+      border: 1.5px solid var(--primary-border);
+      padding: 3px 12px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(79, 70, 229, 0.12);
+      outline: none;
+    }
+
+    .btn-refresh-header:hover:not(:disabled) {
+      background: var(--primary-light);
+      border-color: var(--primary-color);
+      box-shadow: 0 2px 6px rgba(79, 70, 229, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .btn-refresh-header:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .btn-refresh-header:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+      background: #f1f5f9;
+      color: #64748b;
+      border-color: #cbd5e1;
+    }
+
+    .spin-animation {
+      animation: spin-icon 0.8s linear infinite;
+    }
+
+    @keyframes spin-icon {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
     /* 테이블 카드 및 통합 툴바 (홍익-보강 알리미 통일) */
     .table-card {
       background: var(--card-bg);
@@ -1033,6 +1079,10 @@
       <h1 class="app-title">
         <i class="fa-solid fa-hands-holding-circle" style="color: var(--primary-color);"></i> 보강 지원 시스템
         <span id="currentDateLabel" class="header-date-badge"></span>
+        <button type="button" class="btn-refresh-header" id="btnRefreshHeader" onclick="refreshHeaderData()" title="구글 시트 데이터 실시간 새로 고침">
+          <i class="fa-solid fa-rotate" id="headerRefreshIcon"></i>
+          <span id="headerRefreshText">새로 고침</span>
+        </button>
       </h1>
     </header>
 
@@ -1523,6 +1573,53 @@
             }
           })
           .getAuctionRecords(true);
+      }
+    }
+
+    // 상단 헤더 새로 고침 버튼 클릭 핸들러 (동적 스핀 애니메이션 & 최신 데이터 갱신)
+    function refreshHeaderData() {
+      const btn = document.getElementById('btnRefreshHeader');
+      const icon = document.getElementById('headerRefreshIcon');
+      const text = document.getElementById('headerRefreshText');
+
+      if (btn) btn.disabled = true;
+      if (icon) icon.classList.add('spin-animation');
+      if (text) text.textContent = '새로 고침 중...';
+
+      if (typeof google !== 'undefined' && google.script && google.script.run) {
+        google.script.run
+          .withSuccessHandler(function(data) {
+            if (data && Array.isArray(data)) {
+              rawAuctions = data;
+              try {
+                localStorage.setItem('cached_auctions_data', JSON.stringify(rawAuctions));
+              } catch (e) {}
+              renderAuctionTable();
+              fetchTagsFromBackend();
+              showToast('🔄 최신 보강 지원 데이터가 갱신되었습니다.');
+            }
+
+            setTimeout(function() {
+              if (icon) icon.classList.remove('spin-animation');
+              if (text) text.textContent = '새로 고침';
+              if (btn) btn.disabled = false;
+            }, 400);
+          })
+          .withFailureHandler(function(err) {
+            showToast('❌ 새로 고침 실패: ' + (err.message || err));
+            if (icon) icon.classList.remove('spin-animation');
+            if (text) text.textContent = '새로 고침';
+            if (btn) btn.disabled = false;
+          })
+          .getAuctionRecords(true);
+      } else {
+        setTimeout(function() {
+          renderAuctionTable();
+          showToast('🔄 [테스트 환경] 데이터 새로 고침 완료');
+          if (icon) icon.classList.remove('spin-animation');
+          if (text) text.textContent = '새로 고침';
+          if (btn) btn.disabled = false;
+        }, 500);
       }
     }
 
