@@ -1205,7 +1205,9 @@
                 </select>
               </th>
               <th>
-                <input type="text" class="col-filter-input" id="filterColSubClass" placeholder="학급..." onkeyup="applyColumnFilters()">
+                <select class="col-filter-select" id="filterColSubClass" onchange="applyColumnFilters()">
+                  <option value="">전체 학급</option>
+                </select>
               </th>
               <th>
                 <select class="col-filter-select" id="filterColSubject" onchange="applyColumnFilters()">
@@ -1340,37 +1342,37 @@
                 </div>
                 <div id="regSubClassCommonWrapper">
                   <select class="form-control" id="regSubClassSelect" style="border-color: #0d9488; font-weight: 600;">
-                    <option value="1-1">1학년 1반 (1-1)</option>
-                    <option value="1-2">1학년 2반 (1-2)</option>
-                    <option value="1-3">1학년 3반 (1-3)</option>
-                    <option value="1-4">1학년 4반 (1-4)</option>
-                    <option value="1-5">1학년 5반 (1-5)</option>
-                    <option value="1-6">1학년 6반 (1-6)</option>
-                    <option value="1-7">1학년 7반 (1-7)</option>
-                    <option value="1-8">1학년 8반 (1-8)</option>
-                    <option value="1-9">1학년 9반 (1-9)</option>
-                    <option value="2-1">2학년 1반 (2-1)</option>
-                    <option value="2-2">2학년 2반 (2-2)</option>
-                    <option value="2-3">2학년 3반 (2-3)</option>
-                    <option value="2-4">2학년 4반 (2-4)</option>
-                    <option value="2-5">2학년 5반 (2-5)</option>
-                    <option value="2-6">2학년 6반 (2-6)</option>
-                    <option value="2-7">2학년 7반 (2-7)</option>
-                    <option value="2-8">2학년 8반 (2-8)</option>
-                    <option value="2-9">2학년 9반 (2-9)</option>
-                    <option value="3-1">3학년 1반 (3-1)</option>
-                    <option value="3-2">3학년 2반 (3-2)</option>
-                    <option value="3-3">3학년 3반 (3-3)</option>
-                    <option value="3-4">3학년 4반 (3-4)</option>
-                    <option value="3-5">3학년 5반 (3-5)</option>
-                    <option value="3-6">3학년 6반 (3-6)</option>
-                    <option value="3-7">3학년 7반 (3-7)</option>
-                    <option value="3-8">3학년 8반 (3-8)</option>
-                    <option value="3-9">3학년 9반 (3-9)</option>
+                    <option value="1학년 1반">1학년 1반</option>
+                    <option value="1학년 2반">1학년 2반</option>
+                    <option value="1학년 3반">1학년 3반</option>
+                    <option value="1학년 4반">1학년 4반</option>
+                    <option value="1학년 5반">1학년 5반</option>
+                    <option value="1학년 6반">1학년 6반</option>
+                    <option value="1학년 7반">1학년 7반</option>
+                    <option value="1학년 8반">1학년 8반</option>
+                    <option value="1학년 9반">1학년 9반</option>
+                    <option value="2학년 1반">2학년 1반</option>
+                    <option value="2학년 2반">2학년 2반</option>
+                    <option value="2학년 3반">2학년 3반</option>
+                    <option value="2학년 4반">2학년 4반</option>
+                    <option value="2학년 5반">2학년 5반</option>
+                    <option value="2학년 6반">2학년 6반</option>
+                    <option value="2학년 7반">2학년 7반</option>
+                    <option value="2학년 8반">2학년 8반</option>
+                    <option value="2학년 9반">2학년 9반</option>
+                    <option value="3학년 1반">3학년 1반</option>
+                    <option value="3학년 2반">3학년 2반</option>
+                    <option value="3학년 3반">3학년 3반</option>
+                    <option value="3학년 4반">3학년 4반</option>
+                    <option value="3학년 5반">3학년 5반</option>
+                    <option value="3학년 6반">3학년 6반</option>
+                    <option value="3학년 7반">3학년 7반</option>
+                    <option value="3학년 8반">3학년 8반</option>
+                    <option value="3학년 9반">3학년 9반</option>
                   </select>
                 </div>
                 <div id="regSubClassElectiveWrapper" style="display: none;">
-                  <input type="text" class="form-control" id="regSubClassText" placeholder="예: 2학년 선택과목, 3학년 인문사회 등" style="border-color: #0d9488; font-weight: 600;">
+                  <input type="text" class="form-control" id="regSubClassText" value="선택" disabled style="border-color: #0d9488; font-weight: 700; background: #f1f5f9; color: #475569; cursor: not-allowed;">
                 </div>
               </div>
 
@@ -1493,37 +1495,37 @@
                 </div>
                 <div id="editSubClassCommonWrapper">
                   <select class="form-control" id="editSubClassSelect" style="border-color: #0d9488; font-weight: 600;">
-                    <option value="1-1">1학년 1반 (1-1)</option>
-                    <option value="1-2">1학년 2반 (1-2)</option>
-                    <option value="1-3">1학년 3반 (1-3)</option>
-                    <option value="1-4">1학년 4반 (1-4)</option>
-                    <option value="1-5">1학년 5반 (1-5)</option>
-                    <option value="1-6">1학년 6반 (1-6)</option>
-                    <option value="1-7">1학년 7반 (1-7)</option>
-                    <option value="1-8">1학년 8반 (1-8)</option>
-                    <option value="1-9">1학년 9반 (1-9)</option>
-                    <option value="2-1">2학년 1반 (2-1)</option>
-                    <option value="2-2">2학년 2반 (2-2)</option>
-                    <option value="2-3">2학년 3반 (2-3)</option>
-                    <option value="2-4">2학년 4반 (2-4)</option>
-                    <option value="2-5">2학년 5반 (2-5)</option>
-                    <option value="2-6">2학년 6반 (2-6)</option>
-                    <option value="2-7">2학년 7반 (2-7)</option>
-                    <option value="2-8">2학년 8반 (2-8)</option>
-                    <option value="2-9">2학년 9반 (2-9)</option>
-                    <option value="3-1">3학년 1반 (3-1)</option>
-                    <option value="3-2">3학년 2반 (3-2)</option>
-                    <option value="3-3">3학년 3반 (3-3)</option>
-                    <option value="3-4">3학년 4반 (3-4)</option>
-                    <option value="3-5">3학년 5반 (3-5)</option>
-                    <option value="3-6">3학년 6반 (3-6)</option>
-                    <option value="3-7">3학년 7반 (3-7)</option>
-                    <option value="3-8">3학년 8반 (3-8)</option>
-                    <option value="3-9">3학년 9반 (3-9)</option>
+                    <option value="1학년 1반">1학년 1반</option>
+                    <option value="1학년 2반">1학년 2반</option>
+                    <option value="1학년 3반">1학년 3반</option>
+                    <option value="1학년 4반">1학년 4반</option>
+                    <option value="1학년 5반">1학년 5반</option>
+                    <option value="1학년 6반">1학년 6반</option>
+                    <option value="1학년 7반">1학년 7반</option>
+                    <option value="1학년 8반">1학년 8반</option>
+                    <option value="1학년 9반">1학년 9반</option>
+                    <option value="2학년 1반">2학년 1반</option>
+                    <option value="2학년 2반">2학년 2반</option>
+                    <option value="2학년 3반">2학년 3반</option>
+                    <option value="2학년 4반">2학년 4반</option>
+                    <option value="2학년 5반">2학년 5반</option>
+                    <option value="2학년 6반">2학년 6반</option>
+                    <option value="2학년 7반">2학년 7반</option>
+                    <option value="2학년 8반">2학년 8반</option>
+                    <option value="2학년 9반">2학년 9반</option>
+                    <option value="3학년 1반">3학년 1반</option>
+                    <option value="3학년 2반">3학년 2반</option>
+                    <option value="3학년 3반">3학년 3반</option>
+                    <option value="3학년 4반">3학년 4반</option>
+                    <option value="3학년 5반">3학년 5반</option>
+                    <option value="3학년 6반">3학년 6반</option>
+                    <option value="3학년 7반">3학년 7반</option>
+                    <option value="3학년 8반">3학년 8반</option>
+                    <option value="3학년 9반">3학년 9반</option>
                   </select>
                 </div>
                 <div id="editSubClassElectiveWrapper" style="display: none;">
-                  <input type="text" class="form-control" id="editSubClassText" placeholder="예: 2학년 선택과목, 3학년 인문사회 등" style="border-color: #0d9488; font-weight: 600;">
+                  <input type="text" class="form-control" id="editSubClassText" value="선택" disabled style="border-color: #0d9488; font-weight: 700; background: #f1f5f9; color: #475569; cursor: not-allowed;">
                 </div>
               </div>
 
@@ -1954,20 +1956,122 @@
       }
     }
 
+    // 보강 학급 포맷 정규화 헬퍼 함수
+    function formatSubClassDisplay(val) {
+      if (!val) return '-';
+      const str = String(val).trim();
+      if (str === '' || str === '-') return '-';
+
+      if (str.includes('GMT') || str.includes('한국 표준시')) {
+        const d = new Date(str);
+        if (!isNaN(d.getTime())) {
+          return `${d.getMonth() + 1}학년 ${d.getDate()}반`;
+        }
+      }
+
+      const match = str.match(/^(\d{1,2})[-.\s\/]+(\d{1,2})$/);
+      if (match) {
+        return `${match[1]}학년 ${match[2]}반`;
+      }
+
+      return str;
+    }
+
+    // 기본 보강 학급 메뉴 목록 ('선택' + 1학년 1반~3학년 9반 총 28개)
+    const BASE_CLASS_OPTIONS = [
+      '선택',
+      '1학년 1반', '1학년 2반', '1학년 3반', '1학년 4반', '1학년 5반', '1학년 6반', '1학년 7반', '1학년 8반', '1학년 9반',
+      '2학년 1반', '2학년 2반', '2학년 3반', '2학년 4반', '2학년 5반', '2학년 6반', '2학년 7반', '2학년 8반', '2학년 9반',
+      '3학년 1반', '3학년 2반', '3학년 3반', '3학년 4반', '3학년 5반', '3학년 6반', '3학년 7반', '3학년 8반', '3학년 9반'
+    ];
+
+    // 학급 목록 논리적 정렬 ('선택' 맨 앞, 1학년 1반~3학년 9반, 기타 순서)
+    function sortClassNames(classList) {
+      return classList.sort((a, b) => {
+        if (a === '선택') return -1;
+        if (b === '선택') return 1;
+
+        const matchA = a.match(/^(\d+)학년\s*(\d+)반/);
+        const matchB = b.match(/^(\d+)학년\s*(\d+)반/);
+
+        if (matchA && matchB) {
+          const gA = parseInt(matchA[1], 10);
+          const gB = parseInt(matchB[1], 10);
+          if (gA !== gB) return gA - gB;
+          const cA = parseInt(matchA[2], 10);
+          const cB = parseInt(matchB[2], 10);
+          return cA - cB;
+        }
+        if (matchA) return -1;
+        if (matchB) return 1;
+
+        return a.localeCompare(b, 'ko', { numeric: true });
+      });
+    }
+
+    // 테이블 내 실제 데이터 기반 동적 드롭다운 필터 옵션 채우기 ('선택' + 27개 학급 총 28개 메뉴 보장)
+    function populateDynamicFilterDropdowns(records) {
+      const targetRecords = records || rawAuctions || [];
+
+      // 1. 보강 학급 드롭다운 ('선택' + 1학년 1반~3학년 9반 28개 메뉴 기본 포함)
+      const subClassSelect = document.getElementById('filterColSubClass');
+      if (subClassSelect) {
+        const currentVal = subClassSelect.value;
+        const allClassesSet = new Set(BASE_CLASS_OPTIONS);
+
+        targetRecords.forEach(r => {
+          let sc = formatSubClassDisplay(r.subClass);
+          if (sc && sc !== '-') {
+            allClassesSet.add(sc);
+          }
+        });
+
+        const sortedClasses = sortClassNames(Array.from(allClassesSet));
+
+        subClassSelect.innerHTML = '<option value="">전체 학급</option>';
+        sortedClasses.forEach(sc => {
+          const opt = document.createElement('option');
+          opt.value = sc;
+          opt.textContent = sc;
+          subClassSelect.appendChild(opt);
+        });
+
+        subClassSelect.value = currentVal;
+      }
+
+      // 2. 보강 교과 드롭다운 (실제 데이터 및 태그 기반)
+      const subjectSelect = document.getElementById('filterColSubject');
+      if (subjectSelect) {
+        const currentVal = subjectSelect.value;
+        const uniqueSubjectsSet = new Set();
+
+        if (Array.isArray(subjectTags)) {
+          subjectTags.forEach(s => { if (s) uniqueSubjectsSet.add(s.trim()); });
+        }
+
+        targetRecords.forEach(r => {
+          if (r.subject && r.subject.trim() !== '' && r.subject.trim() !== '-') {
+            uniqueSubjectsSet.add(r.subject.trim());
+          }
+        });
+
+        const sortedSubjects = Array.from(uniqueSubjectsSet).sort((a, b) => a.localeCompare(b, 'ko'));
+
+        subjectSelect.innerHTML = '<option value="">전체 교과</option>';
+        sortedSubjects.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          subjectSelect.appendChild(opt);
+        });
+
+        subjectSelect.value = currentVal;
+      }
+    }
+
     // 필터 드롭다운 옵션 동적 채우기
     function populateFilterOptions() {
-      const subjSelect = document.getElementById('filterColSubject');
-      if (subjSelect) {
-        const currentSubj = subjSelect.value;
-        subjSelect.innerHTML = '<option value="">전체 교과</option>';
-        subjectTags.forEach(subj => {
-          const opt = document.createElement('option');
-          opt.value = subj;
-          opt.textContent = subj;
-          subjSelect.appendChild(opt);
-        });
-        subjSelect.value = currentSubj;
-      }
+      populateDynamicFilterDropdowns(rawAuctions);
 
       const reasonSelect = document.getElementById('filterColReason');
       if (reasonSelect) {
@@ -2217,6 +2321,8 @@
 
     // Main Table Render
     function renderAuctionTable() {
+      populateDynamicFilterDropdowns(rawAuctions);
+
       const tbody = document.getElementById('auctionTableBody');
       const startDate = document.getElementById('filterStartDate').value;
       const endDate = document.getElementById('filterEndDate').value;
@@ -2227,8 +2333,9 @@
       const fStatus = fStatusSelect ? fStatusSelect.value : '';
       const fPeriod = document.getElementById('filterColPeriod').value;
       const fClass = document.getElementById('filterColClass').value;
-      const fSubClass = document.getElementById('filterColSubClass')?.value.trim().toLowerCase() || '';
-      const fSubject = document.getElementById('filterColSubject').value;
+      const fSubClassSelect = document.getElementById('filterColSubClass');
+      const fSubClass = fSubClassSelect ? fSubClassSelect.value.trim() : '';
+      const fSubject = document.getElementById('filterColSubject').value.trim();
       const fOrigTeacher = document.getElementById('filterColOrigTeacher').value.trim().toLowerCase();
       const fReasonElem = document.getElementById('filterColReason');
       const fReason = fReasonElem ? fReasonElem.value : '';
@@ -2290,10 +2397,13 @@
         }
 
         // 보강 학급 필터
-        if (fSubClass && !(item.subClass || '-').toLowerCase().includes(fSubClass)) return false;
+        if (fSubClass) {
+          const itemSubClass = formatSubClassDisplay(item.subClass);
+          if (itemSubClass !== fSubClass && !(item.subClass || '').includes(fSubClass)) return false;
+        }
 
         // 교과 필터
-        if (fSubject && item.subject !== fSubject) return false;
+        if (fSubject && !(item.subject || '').includes(fSubject)) return false;
 
         // 원교사 검색
         if (fOrigTeacher && !item.originalTeacher.toLowerCase().includes(fOrigTeacher)) return false;
@@ -2342,7 +2452,7 @@
             <td style="font-weight: 700;">📅 ${formatDisplayDate(item.date)}</td>
             <td><span class="badge-period">${item.period}</span></td>
             <td><span class="badge-class-pill">${escapeHtml(item.className)}호</span></td>
-            <td><span class="badge-sub-class-pill">${escapeHtml(item.subClass || '-')}</span></td>
+            <td><span class="badge-sub-class-pill">${escapeHtml(formatSubClassDisplay(item.subClass))}</span></td>
             <td><span class="badge-subject-pill">${escapeHtml(item.subject)}</span></td>
             <td><span style="color: #e11d48; font-weight: 700;">${escapeHtml(item.originalTeacher)}</span></td>
             <td>
@@ -2587,28 +2697,28 @@
       const selectedType = typeRadio ? typeRadio.value : 'common';
       if (selectedType === 'common') {
         const sel = document.getElementById(`${prefix}SubClassSelect`);
-        return sel ? sel.value : '1-1';
+        return sel ? sel.value : '1학년 1반';
       } else {
-        const txt = document.getElementById(`${prefix}SubClassText`);
-        const val = txt ? txt.value.trim() : '';
-        return val ? val : '-';
+        return '선택';
       }
     }
 
     function setSelectedSubClassValue(val, prefix = 'edit') {
-      const isCommonPattern = /^[1-3]-[1-9]$/.test(String(val || '').trim());
+      const cleanVal = formatSubClassDisplay(val);
+      const selectElem = document.getElementById(`${prefix}SubClassSelect`);
+      const commonOptions = selectElem ? Array.from(selectElem.querySelectorAll('option')).map(o => o.value) : [];
+
       const commonRadio = document.querySelector(`input[name="${prefix}SubClassType"][value="common"]`);
       const electiveRadio = document.querySelector(`input[name="${prefix}SubClassType"][value="elective"]`);
-      const selectElem = document.getElementById(`${prefix}SubClassSelect`);
       const textElem = document.getElementById(`${prefix}SubClassText`);
 
-      if (isCommonPattern) {
+      if (commonOptions.includes(cleanVal)) {
         if (commonRadio) commonRadio.checked = true;
-        if (selectElem) selectElem.value = String(val).trim();
-        if (textElem) textElem.value = '';
+        if (selectElem) selectElem.value = cleanVal;
+        if (textElem) textElem.value = '선택';
       } else {
         if (electiveRadio) electiveRadio.checked = true;
-        if (textElem) textElem.value = (val === '-' ? '' : (val || ''));
+        if (textElem) textElem.value = '선택';
       }
       toggleSubClassTypeUI(prefix);
     }

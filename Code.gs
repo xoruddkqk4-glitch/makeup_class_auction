@@ -211,6 +211,37 @@ function formatDateString(val) {
 }
 
 /**
+ * 보강 학급 값을 '1학년 1반' 포맷으로 정규화하는 헬퍼 함수
+ * Google Sheets에서 '1-1'을 날짜(Date)로 자동 변환하는 현상을 포함하여 모든 입력 포맷을 일관되게 처리합니다.
+ */
+function formatSubClass(val) {
+  if (!val) return '-';
+  if (val instanceof Date) {
+    var g = val.getMonth() + 1;
+    var c = val.getDate();
+    return g + '학년 ' + c + '반';
+  }
+  var str = String(val).trim();
+  if (str === '' || str === '-') return '-';
+
+  if (str.indexOf('GMT') !== -1 || str.indexOf('한국 표준시') !== -1) {
+    var d = new Date(str);
+    if (!isNaN(d.getTime())) {
+      var g = d.getMonth() + 1;
+      var c = d.getDate();
+      return g + '학년 ' + c + '반';
+    }
+  }
+
+  var match = str.match(/^(\d{1,2})[-.\s\/]+(\d{1,2})$/);
+  if (match) {
+    return match[1] + '학년 ' + match[2] + '반';
+  }
+
+  return str;
+}
+
+/**
  * 보강 날짜 기준 전날 13:00 마감 Date 객체 계산
  */
 function getDeadlineDate(dateStr) {
@@ -340,7 +371,7 @@ function getAuctionRecords(bypassCache) {
         date: rowDateStr,
         period: String(row[2]),
         className: String(row[3]),
-        subClass: String(row[4] || '-'),
+        subClass: formatSubClass(row[4]),
         subject: String(row[5] || ''),
         originalTeacher: String(row[6] || ''),
         reason: String(row[7] || ''),
@@ -438,7 +469,7 @@ function addAuctionRecord(record) {
       formattedDate,
       record.period,
       record.className,
-      record.subClass || '-',
+      formatSubClass(record.subClass),
       record.subject,
       record.originalTeacher,
       record.reason || '',
@@ -571,9 +602,10 @@ function toggleAcademicApproval(auctionId, isApproved) {
       var subId = 'SUB-' + now.getTime() + '-' + Math.floor(Math.random() * 1000);
       var period = String(targetRow[2]);
       var className = String(targetRow[3]);
-      var subject = String(targetRow[4] || '');
-      var originalTeacher = String(targetRow[5] || '');
-      var reason = String(targetRow[6] || '');
+      var subClass = formatSubClass(targetRow[4]);
+      var subject = String(targetRow[5] || '');
+      var originalTeacher = String(targetRow[6] || '');
+      var reason = String(targetRow[7] || '');
       var nowIso = now.toISOString();
 
       // 1. 보강내역 시트로 데이터 이관 (확인여부 true: 수업계 확인 완료 연동, 삭제여부 false)
@@ -582,6 +614,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
         dateStr,
         period,
         className,
+        subClass,
         subject,
         originalTeacher,
         substituteTeacher,
@@ -665,7 +698,7 @@ function updateAuctionRecord(record) {
         sheet.getRange(rowIndex, 2).setValue(formattedDate);
         sheet.getRange(rowIndex, 3).setValue(record.period);
         sheet.getRange(rowIndex, 4).setValue(record.className);
-        sheet.getRange(rowIndex, 5).setValue(record.subClass || '-');
+        sheet.getRange(rowIndex, 5).setValue(formatSubClass(record.subClass));
         sheet.getRange(rowIndex, 6).setValue(record.subject);
         sheet.getRange(rowIndex, 7).setValue(record.originalTeacher);
         sheet.getRange(rowIndex, 8).setValue(record.reason || '');
