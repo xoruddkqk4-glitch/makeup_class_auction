@@ -48,22 +48,27 @@ function getDbSpreadsheet() {
     scriptProperties.setProperty('SPREADSHEET_ID', ss.getId());
   }
 
-  // 1. '보강내역' 시트 확인 및 생성 (알리미 연동 DB)
+  // 1. '보강내역' 시트 확인 및 생성 (알리미 연동 DB, 총 13개 열)
   var mainSheet = ss.getSheetByName('보강내역');
   if (!mainSheet) {
     mainSheet = ss.insertSheet('보강내역');
   }
   if (mainSheet.getLastRow() === 0) {
-    mainSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '보강교사', '사유', '등록시각', '확인여부', '긴급여부', '삭제여부']);
-    mainSheet.getRange(1, 1, 1, 12).setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
+    mainSheet.appendRow(['ID', '날짜', '교시', '교실', '보강학급', '보강교과', '원교사', '보강교사', '사유', '등록시각', '확인여부', '긴급여부', '삭제여부']);
+    mainSheet.getRange(1, 1, 1, 13).setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
     mainSheet.setFrozenRows(1);
   } else {
-    if (mainSheet.getLastColumn() < 12 || mainSheet.getRange(1, 12).getValue() === '') {
-      mainSheet.getRange(1, 12).setValue('삭제여부').setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
+    var col5HeaderMain = String(mainSheet.getRange(1, 5).getValue() || '').trim();
+    if (col5HeaderMain === '보강교과') {
+      mainSheet.insertColumnBefore(5);
+      mainSheet.getRange(1, 5).setValue('보강학급').setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
+    }
+    if (mainSheet.getLastColumn() < 13 || mainSheet.getRange(1, 13).getValue() === '') {
+      mainSheet.getRange(1, 13).setValue('삭제여부').setFontWeight('bold').setBackground('#006b67').setFontColor('#ffffff');
     }
   }
 
-  // 2. '보강지원' 시트 확인 및 생성 (미신청 사전 계획 보강 지원 DB)
+  // 2. '보강지원' 시트 확인 및 생성 (미신청 사전 계획 보강 지원 DB, 총 12개 열)
   var auctionSheet = ss.getSheetByName('보강지원') || ss.getSheetByName('보강경매');
   if (!auctionSheet) {
     auctionSheet = ss.insertSheet('보강지원');
@@ -75,12 +80,17 @@ function getDbSpreadsheet() {
     }
   }
   if (auctionSheet.getLastRow() === 0) {
-    auctionSheet.appendRow(['ID', '날짜', '교시', '교실', '보강교과', '원교사', '사유', '등록시각', '보강교사', '수업계확인', '삭제여부']);
-    auctionSheet.getRange(1, 1, 1, 11).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    auctionSheet.appendRow(['ID', '날짜', '교시', '교실', '보강학급', '보강교과', '원교사', '사유', '등록시각', '보강교사', '수업계확인', '삭제여부']);
+    auctionSheet.getRange(1, 1, 1, 12).setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
     auctionSheet.setFrozenRows(1);
   } else {
-    if (auctionSheet.getLastColumn() < 11 || auctionSheet.getRange(1, 11).getValue() === '') {
-      auctionSheet.getRange(1, 11).setValue('삭제여부').setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    var col5HeaderAuc = String(auctionSheet.getRange(1, 5).getValue() || '').trim();
+    if (col5HeaderAuc === '보강교과') {
+      auctionSheet.insertColumnBefore(5);
+      auctionSheet.getRange(1, 5).setValue('보강학급').setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
+    }
+    if (auctionSheet.getLastColumn() < 12 || auctionSheet.getRange(1, 12).getValue() === '') {
+      auctionSheet.getRange(1, 12).setValue('삭제여부').setFontWeight('bold').setBackground('#4f46e5').setFontColor('#ffffff');
     }
   }
 
@@ -135,15 +145,32 @@ function onEdit(e) {
       if (!hasContent) continue;
 
       if (sheetName === '보강내역') {
-        // 보강내역 (12열)
+        // 보강내역 (13열)
         if (!rowValues[0]) {
           sheet.getRange(r, 1).setValue('SUB-MANUAL-' + new Date().getTime() + '-' + r);
         }
+        if (!rowValues[9]) {
+          sheet.getRange(r, 10).setValue(new Date().toISOString());
+        }
+        if (rowValues[10] === undefined || rowValues[10] === '') {
+          sheet.getRange(r, 11).setValue(true);
+        }
+        if (rowValues[11] === undefined || rowValues[11] === '') {
+          sheet.getRange(r, 12).setValue(false);
+        }
+        if (rowValues[12] === undefined || rowValues[12] === '') {
+          sheet.getRange(r, 13).setValue(false);
+          rowValues[12] = false;
+        }
+        var isDelMain = (rowValues[12] === true || String(rowValues[12]).toLowerCase() === 'true' || String(rowValues[12]) === 'y');
+        applyRowStrikethrough(sheet, r, isDelMain, 13);
+      } else {
+        // 보강지원 (12열)
+        if (!rowValues[0]) {
+          sheet.getRange(r, 1).setValue('AUC-MANUAL-' + new Date().getTime() + '-' + r);
+        }
         if (!rowValues[8]) {
           sheet.getRange(r, 9).setValue(new Date().toISOString());
-        }
-        if (rowValues[9] === undefined || rowValues[9] === '') {
-          sheet.getRange(r, 10).setValue(false);
         }
         if (rowValues[10] === undefined || rowValues[10] === '') {
           sheet.getRange(r, 11).setValue(false);
@@ -152,25 +179,8 @@ function onEdit(e) {
           sheet.getRange(r, 12).setValue(false);
           rowValues[11] = false;
         }
-        var isDelMain = (rowValues[11] === true || String(rowValues[11]).toLowerCase() === 'true' || String(rowValues[11]) === 'y');
-        applyRowStrikethrough(sheet, r, isDelMain, 12);
-      } else {
-        // 보강지원 (11열)
-        if (!rowValues[0]) {
-          sheet.getRange(r, 1).setValue('AUC-MANUAL-' + new Date().getTime() + '-' + r);
-        }
-        if (!rowValues[7]) {
-          sheet.getRange(r, 8).setValue(new Date().toISOString());
-        }
-        if (rowValues[9] === undefined || rowValues[9] === '') {
-          sheet.getRange(r, 10).setValue(false);
-        }
-        if (rowValues[10] === undefined || rowValues[10] === '') {
-          sheet.getRange(r, 11).setValue(false);
-          rowValues[10] = false;
-        }
-        var isDelAuc = (rowValues[10] === true || String(rowValues[10]).toLowerCase() === 'true' || String(rowValues[10]) === 'y');
-        applyRowStrikethrough(sheet, r, isDelAuc, 11);
+        var isDelAuc = (rowValues[11] === true || String(rowValues[11]).toLowerCase() === 'true' || String(rowValues[11]) === 'y');
+        applyRowStrikethrough(sheet, r, isDelAuc, 12);
       }
     }
   } catch (err) {
@@ -266,7 +276,7 @@ function getAuctionRecords(bypassCache) {
 
     for (var i = 1; i < data.length; i++) {
       var row = data[i];
-      var hasData = row[1] || row[2] || row[3] || row[4] || row[5] || row[6];
+      var hasData = row[1] || row[2] || row[3] || row[4] || row[5] || row[6] || row[7];
       if (!hasData) continue; // 완전히 비어있는 행 스킵
 
       // ID가 없는 수동 입력 행 자동 보정
@@ -278,33 +288,33 @@ function getAuctionRecords(bypassCache) {
         needsFlush = true;
       }
 
-      // 등록시각 (8열) 보정
-      if (!row[7]) {
+      // 등록시각 (9열) 보정
+      if (!row[8]) {
         var nowIsoStr = new Date().toISOString();
-        sheet.getRange(i + 1, 8).setValue(nowIsoStr);
-        row[7] = nowIsoStr;
+        sheet.getRange(i + 1, 9).setValue(nowIsoStr);
+        row[8] = nowIsoStr;
         needsFlush = true;
       }
 
-      // 수업계확인 (10열) 기본값 보정
-      if (row[9] === undefined || row[9] === '') {
-        sheet.getRange(i + 1, 10).setValue(false);
-        row[9] = false;
-        needsFlush = true;
-      }
-
-      // 삭제여부 (11열) 기본값 보정
+      // 수업계확인 (11열) 기본값 보정
       if (row[10] === undefined || row[10] === '') {
         sheet.getRange(i + 1, 11).setValue(false);
         row[10] = false;
         needsFlush = true;
       }
 
+      // 삭제여부 (12열) 기본값 보정
+      if (row[11] === undefined || row[11] === '') {
+        sheet.getRange(i + 1, 12).setValue(false);
+        row[11] = false;
+        needsFlush = true;
+      }
+
       var rowDateStr = formatDateString(row[1]);
-      var isDeleted = (row[10] === true || String(row[10]).toLowerCase() === 'true' || String(row[10]) === 'y');
+      var isDeleted = (row[11] === true || String(row[11]).toLowerCase() === 'true' || String(row[11]) === 'y');
 
       // 시트 행 취소선 적용/해제 동기화
-      applyRowStrikethrough(sheet, i + 1, isDeleted, 11);
+      applyRowStrikethrough(sheet, i + 1, isDeleted, 12);
 
       // 삭제 처리된 행은 웹 화면에서 제외 (Soft Delete)
       if (isDeleted) continue;
@@ -322,18 +332,19 @@ function getAuctionRecords(bypassCache) {
         isClosed = true;
       }
 
-      var subTeacher = row[8] ? String(row[8]).trim() : '';
-      var academicAppr = (row[9] === true || String(row[9]).toLowerCase() === 'true');
+      var subTeacher = row[9] ? String(row[9]).trim() : '';
+      var academicAppr = (row[10] === true || String(row[10]).toLowerCase() === 'true');
 
       records.push({
         id: String(row[0]),
         date: rowDateStr,
         period: String(row[2]),
         className: String(row[3]),
-        subject: String(row[4] || ''),
-        originalTeacher: String(row[5] || ''),
-        reason: String(row[6] || ''),
-        timestamp: row[7] ? String(row[7]) : '',
+        subClass: String(row[4] || '-'),
+        subject: String(row[5] || ''),
+        originalTeacher: String(row[6] || ''),
+        reason: String(row[7] || ''),
+        timestamp: row[8] ? String(row[8]) : '',
         substituteTeacher: subTeacher,
         academicApproval: academicAppr,
         isClosed: isClosed,
@@ -365,8 +376,8 @@ function getAuctionRecords(bypassCache) {
     // 날짜 지난 항목은 시트 행을 지우지 않고 '삭제여부'를 true로 설정 (Soft Delete) 및 취소선 적용
     if (rowsToDelete.length > 0) {
       for (var d = 0; d < rowsToDelete.length; d++) {
-        sheet.getRange(rowsToDelete[d], 11).setValue(true);
-        applyRowStrikethrough(sheet, rowsToDelete[d], true, 11);
+        sheet.getRange(rowsToDelete[d], 12).setValue(true);
+        applyRowStrikethrough(sheet, rowsToDelete[d], true, 12);
       }
       SpreadsheetApp.flush();
     }
@@ -427,6 +438,7 @@ function addAuctionRecord(record) {
       formattedDate,
       record.period,
       record.className,
+      record.subClass || '-',
       record.subject,
       record.originalTeacher,
       record.reason || '',
@@ -495,8 +507,8 @@ function claimAuctionRecord(auctionId, substituteTeacher) {
     var cleanTeacherName = substituteTeacher ? String(substituteTeacher).trim() : '';
 
     // 보강지원 시트에 보강교사 업데이트 및 수업계확인 false 유지
-    auctionSheet.getRange(foundIndex, 9).setValue(cleanTeacherName); // 9번째 열: 보강교사
-    auctionSheet.getRange(foundIndex, 10).setValue(false);            // 10번째 열: 수업계확인
+    auctionSheet.getRange(foundIndex, 10).setValue(cleanTeacherName); // 10번째 열: 보강교사
+    auctionSheet.getRange(foundIndex, 11).setValue(false);            // 11번째 열: 수업계확인
     SpreadsheetApp.flush();
     clearAuctionCache();
 
@@ -592,7 +604,7 @@ function toggleAcademicApproval(auctionId, isApproved) {
       };
     } else {
       // 수업계 확인 해제 (false)
-      auctionSheet.getRange(foundIndex, 10).setValue(false);
+      auctionSheet.getRange(foundIndex, 11).setValue(false);
       SpreadsheetApp.flush();
       clearAuctionCache();
 
@@ -619,7 +631,7 @@ function deleteAuctionRecord(auctionId) {
 
     for (var i = 1; i < data.length; i++) {
       if (String(data[i][0]) === String(auctionId)) {
-        auctionSheet.getRange(i + 1, 11).setValue(true);
+        auctionSheet.getRange(i + 1, 12).setValue(true);
         SpreadsheetApp.flush();
         clearAuctionCache();
         return { success: true, message: '보강 지원 등록이 취소/삭제되었습니다. (시트 데이터는 영구 보존됩니다)' };
@@ -653,9 +665,10 @@ function updateAuctionRecord(record) {
         sheet.getRange(rowIndex, 2).setValue(formattedDate);
         sheet.getRange(rowIndex, 3).setValue(record.period);
         sheet.getRange(rowIndex, 4).setValue(record.className);
-        sheet.getRange(rowIndex, 5).setValue(record.subject);
-        sheet.getRange(rowIndex, 6).setValue(record.originalTeacher);
-        sheet.getRange(rowIndex, 7).setValue(record.reason || '');
+        sheet.getRange(rowIndex, 5).setValue(record.subClass || '-');
+        sheet.getRange(rowIndex, 6).setValue(record.subject);
+        sheet.getRange(rowIndex, 7).setValue(record.originalTeacher);
+        sheet.getRange(rowIndex, 8).setValue(record.reason || '');
         SpreadsheetApp.flush();
         clearAuctionCache();
         return { success: true, message: '보강 지원 항목이 성공적으로 수정되었습니다.' };

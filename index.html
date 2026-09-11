@@ -489,6 +489,18 @@
       display: inline-block;
     }
 
+    .badge-sub-class-pill {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-size: 0.775rem;
+      font-weight: 700;
+      white-space: nowrap !important;
+      display: inline-block;
+    }
+
     .badge-subject-pill {
       background: #fef3c7;
       color: #92400e;
@@ -1127,27 +1139,30 @@
         <table class="schedule-table">
           <thead>
             <tr>
-              <th id="th_date" class="sortable-th" style="width: 13%;" onclick="handleSort('date')" title="날짜 정렬">
+              <th id="th_date" class="sortable-th" style="width: 11%;" onclick="handleSort('date')" title="날짜 정렬">
                 날짜(요일) <i class="fa-solid fa-sort sort-icon" id="sortIcon_date"></i>
               </th>
-              <th id="th_period" class="sortable-th" style="width: 8%;" onclick="handleSort('period')" title="교시 정렬">
+              <th id="th_period" class="sortable-th" style="width: 6%;" onclick="handleSort('period')" title="교시 정렬">
                 교시 <i class="fa-solid fa-sort sort-icon" id="sortIcon_period"></i>
               </th>
-              <th id="th_className" class="sortable-th" style="width: 8%;" onclick="handleSort('className')" title="교실 정렬">
+              <th id="th_className" class="sortable-th" style="width: 6%;" onclick="handleSort('className')" title="교실 정렬">
                 교실 <i class="fa-solid fa-sort sort-icon" id="sortIcon_className"></i>
               </th>
-              <th id="th_subject" class="sortable-th" style="width: 10%;" onclick="handleSort('subject')" title="보강 교과 정렬">
+              <th id="th_subClass" class="sortable-th" style="width: 11%;" onclick="handleSort('subClass')" title="보강 학급 정렬">
+                보강 학급 <i class="fa-solid fa-sort sort-icon" id="sortIcon_subClass"></i>
+              </th>
+              <th id="th_subject" class="sortable-th" style="width: 9%;" onclick="handleSort('subject')" title="보강 교과 정렬">
                 보강 교과 <i class="fa-solid fa-sort sort-icon" id="sortIcon_subject"></i>
               </th>
-              <th id="th_originalTeacher" class="sortable-th" style="width: 11%;" onclick="handleSort('originalTeacher')" title="결강 교사 정렬">
-                결강 교사(원교사) <i class="fa-solid fa-sort sort-icon" id="sortIcon_originalTeacher"></i>
+              <th id="th_originalTeacher" class="sortable-th" style="width: 7%;" onclick="handleSort('originalTeacher')" title="결강 교사 정렬">
+                결강 교사 <i class="fa-solid fa-sort sort-icon" id="sortIcon_originalTeacher"></i>
               </th>
-              <th id="th_deadline" class="sortable-th" style="width: 15%;" onclick="handleSort('isClosed')" title="마감 상태 정렬">
+              <th id="th_deadline" class="sortable-th" style="width: 13%;" onclick="handleSort('isClosed')" title="마감 상태 정렬">
                 마감 시간 / 상태 <i class="fa-solid fa-sort sort-icon" id="sortIcon_isClosed"></i>
               </th>
-              <th style="width: 17%;">보강 신청</th>
+              <th style="width: 18%;">보강 신청</th>
               <th style="width: 13%;">수업계 확인</th>
-              <th style="width: 5%;">작업</th>
+              <th style="width: 6%;">작업</th>
             </tr>
             <!-- 열별 개별 필터 헤더 행 -->
             <tr class="filter-header-row">
@@ -1188,6 +1203,9 @@
                     <option value="B01">B01</option><option value="B02">B02</option><option value="B03">B03</option><option value="B04">B04</option><option value="B05">B05</option><option value="B06">B06</option><option value="B07">B07</option><option value="B08">B08</option><option value="B09">B09</option><option value="B10">B10</option><option value="B11">B11</option><option value="B12">B12</option><option value="B13">B13</option><option value="B14">B14</option>
                   </optgroup>
                 </select>
+              </th>
+              <th>
+                <input type="text" class="col-filter-input" id="filterColSubClass" placeholder="학급..." onkeyup="applyColumnFilters()">
               </th>
               <th>
                 <select class="col-filter-select" id="filterColSubject" onchange="applyColumnFilters()">
@@ -1306,10 +1324,60 @@
                 </div>
               </div>
 
-              <!-- 4. 보강 교과 -->
+              <!-- 4. 보강 학급 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span><span class="step-num">4</span> 보강 교과</span>
+                  <span><span class="step-num">4</span> 보강 학급</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <div style="display: flex; gap: 12px; margin-bottom: 6px; align-items: center;">
+                  <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #374151;">
+                    <input type="radio" name="regSubClassType" value="common" checked onchange="toggleSubClassTypeUI('reg')"> 공통 과목
+                  </label>
+                  <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #374151;">
+                    <input type="radio" name="regSubClassType" value="elective" onchange="toggleSubClassTypeUI('reg')"> 선택 과목
+                  </label>
+                </div>
+                <div id="regSubClassCommonWrapper">
+                  <select class="form-control" id="regSubClassSelect" style="border-color: #0d9488; font-weight: 600;">
+                    <option value="1-1">1학년 1반 (1-1)</option>
+                    <option value="1-2">1학년 2반 (1-2)</option>
+                    <option value="1-3">1학년 3반 (1-3)</option>
+                    <option value="1-4">1학년 4반 (1-4)</option>
+                    <option value="1-5">1학년 5반 (1-5)</option>
+                    <option value="1-6">1학년 6반 (1-6)</option>
+                    <option value="1-7">1학년 7반 (1-7)</option>
+                    <option value="1-8">1학년 8반 (1-8)</option>
+                    <option value="1-9">1학년 9반 (1-9)</option>
+                    <option value="2-1">2학년 1반 (2-1)</option>
+                    <option value="2-2">2학년 2반 (2-2)</option>
+                    <option value="2-3">2학년 3반 (2-3)</option>
+                    <option value="2-4">2학년 4반 (2-4)</option>
+                    <option value="2-5">2학년 5반 (2-5)</option>
+                    <option value="2-6">2학년 6반 (2-6)</option>
+                    <option value="2-7">2학년 7반 (2-7)</option>
+                    <option value="2-8">2학년 8반 (2-8)</option>
+                    <option value="2-9">2학년 9반 (2-9)</option>
+                    <option value="3-1">3학년 1반 (3-1)</option>
+                    <option value="3-2">3학년 2반 (3-2)</option>
+                    <option value="3-3">3학년 3반 (3-3)</option>
+                    <option value="3-4">3학년 4반 (3-4)</option>
+                    <option value="3-5">3학년 5반 (3-5)</option>
+                    <option value="3-6">3학년 6반 (3-6)</option>
+                    <option value="3-7">3학년 7반 (3-7)</option>
+                    <option value="3-8">3학년 8반 (3-8)</option>
+                    <option value="3-9">3학년 9반 (3-9)</option>
+                  </select>
+                </div>
+                <div id="regSubClassElectiveWrapper" style="display: none;">
+                  <input type="text" class="form-control" id="regSubClassText" placeholder="예: 2학년 선택과목, 3학년 인문사회 등" style="border-color: #0d9488; font-weight: 600;">
+                </div>
+              </div>
+
+              <!-- 5. 보강 교과 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">5</span> 보강 교과</span>
                   <span class="required-txt">(필수)</span>
                 </label>
                 <input type="text" id="regSubject" class="form-control" placeholder="예: 국어, 수학, 영어 등" required>
@@ -1319,19 +1387,19 @@
 
             <!-- 우측 컬럼 -->
             <div>
-              <!-- 5. 결강 교사(원교사) -->
+              <!-- 6. 결강 교사(원교사) -->
               <div class="form-group">
                 <label class="form-label">
-                  <span><span class="step-num">5</span> 결강 교사(원교사)</span>
+                  <span><span class="step-num">6</span> 결강 교사(원교사)</span>
                   <span class="required-txt">(필수)</span>
                 </label>
                 <input type="text" id="regOriginalTeacher" class="form-control" placeholder="예: 홍길동 (원교사 성함)" required>
               </div>
 
-              <!-- 6. 보강 유발 사유 -->
+              <!-- 7. 보강 유발 사유 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span><span class="step-num">6</span> 보강 유발 사유</span>
+                  <span><span class="step-num">7</span> 보강 유발 사유</span>
                   <span class="optional-txt">(선택)</span>
                 </label>
                 <input type="text" id="regReason" class="form-control" placeholder="예: 관외 출장, 연가 등">
@@ -1409,10 +1477,60 @@
                 </div>
               </div>
 
-              <!-- 4. 보강 교과 -->
+              <!-- 4. 보강 학급 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span><span class="step-num">4</span> 보강 교과</span>
+                  <span><span class="step-num">4</span> 보강 학급</span>
+                  <span class="required-txt">(필수)</span>
+                </label>
+                <div style="display: flex; gap: 12px; margin-bottom: 6px; align-items: center;">
+                  <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #374151;">
+                    <input type="radio" name="editSubClassType" value="common" checked onchange="toggleSubClassTypeUI('edit')"> 공통 과목
+                  </label>
+                  <label style="font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px; color: #374151;">
+                    <input type="radio" name="editSubClassType" value="elective" onchange="toggleSubClassTypeUI('edit')"> 선택 과목
+                  </label>
+                </div>
+                <div id="editSubClassCommonWrapper">
+                  <select class="form-control" id="editSubClassSelect" style="border-color: #0d9488; font-weight: 600;">
+                    <option value="1-1">1학년 1반 (1-1)</option>
+                    <option value="1-2">1학년 2반 (1-2)</option>
+                    <option value="1-3">1학년 3반 (1-3)</option>
+                    <option value="1-4">1학년 4반 (1-4)</option>
+                    <option value="1-5">1학년 5반 (1-5)</option>
+                    <option value="1-6">1학년 6반 (1-6)</option>
+                    <option value="1-7">1학년 7반 (1-7)</option>
+                    <option value="1-8">1학년 8반 (1-8)</option>
+                    <option value="1-9">1학년 9반 (1-9)</option>
+                    <option value="2-1">2학년 1반 (2-1)</option>
+                    <option value="2-2">2학년 2반 (2-2)</option>
+                    <option value="2-3">2학년 3반 (2-3)</option>
+                    <option value="2-4">2학년 4반 (2-4)</option>
+                    <option value="2-5">2학년 5반 (2-5)</option>
+                    <option value="2-6">2학년 6반 (2-6)</option>
+                    <option value="2-7">2학년 7반 (2-7)</option>
+                    <option value="2-8">2학년 8반 (2-8)</option>
+                    <option value="2-9">2학년 9반 (2-9)</option>
+                    <option value="3-1">3학년 1반 (3-1)</option>
+                    <option value="3-2">3학년 2반 (3-2)</option>
+                    <option value="3-3">3학년 3반 (3-3)</option>
+                    <option value="3-4">3학년 4반 (3-4)</option>
+                    <option value="3-5">3학년 5반 (3-5)</option>
+                    <option value="3-6">3학년 6반 (3-6)</option>
+                    <option value="3-7">3학년 7반 (3-7)</option>
+                    <option value="3-8">3학년 8반 (3-8)</option>
+                    <option value="3-9">3학년 9반 (3-9)</option>
+                  </select>
+                </div>
+                <div id="editSubClassElectiveWrapper" style="display: none;">
+                  <input type="text" class="form-control" id="editSubClassText" placeholder="예: 2학년 선택과목, 3학년 인문사회 등" style="border-color: #0d9488; font-weight: 600;">
+                </div>
+              </div>
+
+              <!-- 5. 보강 교과 -->
+              <div class="form-group">
+                <label class="form-label">
+                  <span><span class="step-num">5</span> 보강 교과</span>
                   <span class="required-txt">(필수)</span>
                 </label>
                 <input type="text" id="editSubject" class="form-control" placeholder="예: 국어, 수학, 영어 등" required>
@@ -1422,19 +1540,19 @@
 
             <!-- 우측 컬럼 -->
             <div>
-              <!-- 5. 결강 교사(원교사) -->
+              <!-- 6. 결강 교사(원교사) -->
               <div class="form-group">
                 <label class="form-label">
-                  <span><span class="step-num">5</span> 결강 교사(원교사)</span>
+                  <span><span class="step-num">6</span> 결강 교사(원교사)</span>
                   <span class="required-txt">(필수)</span>
                 </label>
                 <input type="text" id="editOriginalTeacher" class="form-control" placeholder="예: 홍길동 (원교사 성함)" required>
               </div>
 
-              <!-- 6. 보강 유발 사유 -->
+              <!-- 7. 보강 유발 사유 -->
               <div class="form-group">
                 <label class="form-label">
-                  <span><span class="step-num">6</span> 보강 유발 사유</span>
+                  <span><span class="step-num">7</span> 보강 유발 사유</span>
                   <span class="optional-txt">(선택)</span>
                 </label>
                 <input type="text" id="editReason" class="form-control" placeholder="예: 관외 출장, 연가 등">
@@ -2084,6 +2202,8 @@
       if (fStatus) fStatus.value = '';
       document.getElementById('filterColPeriod').value = '';
       document.getElementById('filterColClass').value = '';
+      const fSubClass = document.getElementById('filterColSubClass');
+      if (fSubClass) fSubClass.value = '';
       document.getElementById('filterColSubject').value = '';
       document.getElementById('filterColOrigTeacher').value = '';
       document.getElementById('filterColReason').value = '';
@@ -2107,6 +2227,7 @@
       const fStatus = fStatusSelect ? fStatusSelect.value : '';
       const fPeriod = document.getElementById('filterColPeriod').value;
       const fClass = document.getElementById('filterColClass').value;
+      const fSubClass = document.getElementById('filterColSubClass')?.value.trim().toLowerCase() || '';
       const fSubject = document.getElementById('filterColSubject').value;
       const fOrigTeacher = document.getElementById('filterColOrigTeacher').value.trim().toLowerCase();
       const fReasonElem = document.getElementById('filterColReason');
@@ -2168,6 +2289,9 @@
           }
         }
 
+        // 보강 학급 필터
+        if (fSubClass && !(item.subClass || '-').toLowerCase().includes(fSubClass)) return false;
+
         // 교과 필터
         if (fSubject && item.subject !== fSubject) return false;
 
@@ -2218,6 +2342,7 @@
             <td style="font-weight: 700;">📅 ${formatDisplayDate(item.date)}</td>
             <td><span class="badge-period">${item.period}</span></td>
             <td><span class="badge-class-pill">${escapeHtml(item.className)}호</span></td>
+            <td><span class="badge-sub-class-pill">${escapeHtml(item.subClass || '-')}</span></td>
             <td><span class="badge-subject-pill">${escapeHtml(item.subject)}</span></td>
             <td><span style="color: #e11d48; font-weight: 700;">${escapeHtml(item.originalTeacher)}</span></td>
             <td>
@@ -2441,6 +2566,53 @@
       }
     }
 
+    // 보강 학급 라디오/입력 폼 헬퍼 함수
+    function toggleSubClassTypeUI(prefix = 'reg') {
+      const typeRadio = document.querySelector(`input[name="${prefix}SubClassType"]:checked`);
+      const selectedType = typeRadio ? typeRadio.value : 'common';
+      const commonWrap = document.getElementById(`${prefix}SubClassCommonWrapper`);
+      const electiveWrap = document.getElementById(`${prefix}SubClassElectiveWrapper`);
+
+      if (selectedType === 'common') {
+        if (commonWrap) commonWrap.style.display = 'block';
+        if (electiveWrap) electiveWrap.style.display = 'none';
+      } else {
+        if (commonWrap) commonWrap.style.display = 'none';
+        if (electiveWrap) electiveWrap.style.display = 'block';
+      }
+    }
+
+    function getSelectedSubClassValue(prefix = 'reg') {
+      const typeRadio = document.querySelector(`input[name="${prefix}SubClassType"]:checked`);
+      const selectedType = typeRadio ? typeRadio.value : 'common';
+      if (selectedType === 'common') {
+        const sel = document.getElementById(`${prefix}SubClassSelect`);
+        return sel ? sel.value : '1-1';
+      } else {
+        const txt = document.getElementById(`${prefix}SubClassText`);
+        const val = txt ? txt.value.trim() : '';
+        return val ? val : '-';
+      }
+    }
+
+    function setSelectedSubClassValue(val, prefix = 'edit') {
+      const isCommonPattern = /^[1-3]-[1-9]$/.test(String(val || '').trim());
+      const commonRadio = document.querySelector(`input[name="${prefix}SubClassType"][value="common"]`);
+      const electiveRadio = document.querySelector(`input[name="${prefix}SubClassType"][value="elective"]`);
+      const selectElem = document.getElementById(`${prefix}SubClassSelect`);
+      const textElem = document.getElementById(`${prefix}SubClassText`);
+
+      if (isCommonPattern) {
+        if (commonRadio) commonRadio.checked = true;
+        if (selectElem) selectElem.value = String(val).trim();
+        if (textElem) textElem.value = '';
+      } else {
+        if (electiveRadio) electiveRadio.checked = true;
+        if (textElem) textElem.value = (val === '-' ? '' : (val || ''));
+      }
+      toggleSubClassTypeUI(prefix);
+    }
+
     // Form Submit: Add Auction Record
     function handleFormSubmit(e) {
       e.preventDefault();
@@ -2448,6 +2620,7 @@
       const dateVal = document.getElementById('regDate').value;
       const periodVal = document.getElementById('regPeriod').value;
       const roomVal = document.getElementById('regRoom').value;
+      const subClassVal = getSelectedSubClassValue('reg');
       const periodNum = parseInt(String(periodVal).replace(/[^0-9]/g, ''), 10) || 0;
 
       // 당일 및 익일 날짜 계산
@@ -2474,6 +2647,7 @@
         date: dateVal,
         period: periodVal,
         className: roomVal,
+        subClass: subClassVal,
         subject: document.getElementById('regSubject').value.trim(),
         originalTeacher: document.getElementById('regOriginalTeacher').value.trim(),
         reason: document.getElementById('regReason').value.trim()
@@ -2491,6 +2665,7 @@
             if (res.success) {
               showToast(res.message, 'success');
               document.getElementById('addAuctionForm').reset();
+              setSelectedSubClassValue('1-1', 'reg');
               const today = formatDisplayDateRaw(new Date());
               document.getElementById('regDate').value = today;
               selectPeriod(1);
@@ -2517,6 +2692,7 @@
             date: record.date,
             period: record.period,
             className: record.className,
+            subClass: record.subClass,
             subject: record.subject,
             originalTeacher: record.originalTeacher,
             reason: record.reason,
@@ -2525,6 +2701,7 @@
           });
           showToast('보강 수업 등록 완료!', 'success');
           document.getElementById('addAuctionForm').reset();
+          setSelectedSubClassValue('1-1', 'reg');
           closeAddModal();
           renderAuctionTable();
         }, 400);
@@ -2582,6 +2759,8 @@
           }
           roomSelect.value = roomStr;
         }
+
+        setSelectedSubClassValue(item.subClass || '1-1', 'edit');
 
         document.getElementById('editSubject').value = item.subject || '';
         document.getElementById('editOriginalTeacher').value = item.originalTeacher || '';
@@ -2675,6 +2854,7 @@
       const dateVal = document.getElementById('editDate').value;
       const periodVal = document.getElementById('editPeriod').value;
       const roomVal = document.getElementById('editRoom').value;
+      const subClassVal = getSelectedSubClassValue('edit');
       const periodNum = parseInt(String(periodVal).replace(/[^0-9]/g, ''), 10) || 0;
 
       const now = new Date();
@@ -2689,6 +2869,7 @@
         date: dateVal,
         period: periodVal,
         className: roomVal,
+        subClass: subClassVal,
         subject: document.getElementById('editSubject').value.trim(),
         originalTeacher: document.getElementById('editOriginalTeacher').value.trim(),
         reason: document.getElementById('editReason').value.trim()
@@ -2726,6 +2907,7 @@
             target.date = record.date;
             target.period = record.period;
             target.className = record.className;
+            target.subClass = record.subClass;
             target.subject = record.subject;
             target.originalTeacher = record.originalTeacher;
             target.reason = record.reason;
@@ -2846,6 +3028,7 @@
           date: '2026-09-08',
           period: '2교시',
           className: '203',
+          subClass: '2-3',
           subject: '수학',
           originalTeacher: '홍길동',
           reason: '관외 출장',
@@ -2857,6 +3040,7 @@
           date: '2026-09-09',
           period: '4교시',
           className: '105',
+          subClass: '1-5',
           subject: '영어',
           originalTeacher: '김영희',
           reason: '연가 사용',
@@ -2868,6 +3052,7 @@
           date: '2026-09-05',
           period: '1교시',
           className: '312',
+          subClass: '3-1',
           subject: '과학',
           originalTeacher: '박철수',
           reason: '공가',

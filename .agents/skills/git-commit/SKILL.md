@@ -1,11 +1,14 @@
 ---
 name: git-commit
-description: Triggered by '/git-commit', '/action git-commit', or requests to update README.md with detailed user questions and verification results, then commit and push to GitHub.
+description: Triggered strictly by '/git-commit', '/action git-commit', or explicit requests to update README.md with detailed verification results and commit/push to GitHub. Never executed automatically during standard code editing tasks.
 ---
 
 # README 자동 업데이트 & Git 커밋/푸시 스킬 (`git-commit`)
 
-`/git-commit`, `/action git-commit` 명령이나 README 업데이트 및 Git 푸시 요청을 수신했을 때 실행되는 스킬입니다.
+> [!IMPORTANT]
+> **실행 조건 (Strict Trigger Policy)**
+> 이 스킬은 **오직 사용자가 `/git-commit`, `/action git-commit` 명령어를 명시적으로 입력하거나 "README 업데이트 후 커밋/푸시해줘"라고 직접 요청했을 때만 실행**됩니다.
+> 일반적인 코드 수정, 버그 수정, 리팩토링 요청 시에는 절대로 본 커밋/푸시 스킬을 자동 실행하지 않습니다.
 
 ## 주요 기능 및 수행 절차 (Workflow)
 
@@ -50,4 +53,3 @@ description: Triggered by '/git-commit', '/action git-commit', or requests to up
 
 5. **결과 보고**:
    - 최종 커밋 해시, README 반영 사항, 푸시 결과를 사용자에게 종합 보고합니다.
-

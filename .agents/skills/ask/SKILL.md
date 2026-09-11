@@ -10,7 +10,7 @@ description: Triggered by '/ask', '/action ask', or requests starting with '/ask
 ## 📌 핵심 원칙 (Core Rules)
 
 1. **코드 수정 절대 금지 (No Code Modification)**:
-   - 워크스페이스 내 프로젝트 소스 코드(`Code.gs`, `index.html` 등)를 절대로 수정하거나 삭제하지 않습니다.
+   - 워크스페이스 내 프로젝트 소스 코드(모든 소스 파일, 설정 파일, 스크립트 등)를 절대로 수정하거나 삭제하지 않습니다.
    - 코드 조회/검색 도구(`view_file`, `grep_search`, `list_dir` 등)만 활용하여 분석 및 답변합니다.
 
 2. **답변 또는 계획서 작성까지만 수행 (Answer or Plan Only)**:
