@@ -2038,35 +2038,6 @@
 
         subClassSelect.value = currentVal;
       }
-
-      // 2. 보강 교과 드롭다운 (실제 데이터 및 태그 기반)
-      const subjectSelect = document.getElementById('filterColSubject');
-      if (subjectSelect) {
-        const currentVal = subjectSelect.value;
-        const uniqueSubjectsSet = new Set();
-
-        if (Array.isArray(subjectTags)) {
-          subjectTags.forEach(s => { if (s) uniqueSubjectsSet.add(s.trim()); });
-        }
-
-        targetRecords.forEach(r => {
-          if (r.subject && r.subject.trim() !== '' && r.subject.trim() !== '-') {
-            uniqueSubjectsSet.add(r.subject.trim());
-          }
-        });
-
-        const sortedSubjects = Array.from(uniqueSubjectsSet).sort((a, b) => a.localeCompare(b, 'ko'));
-
-        subjectSelect.innerHTML = '<option value="">전체 교과</option>';
-        sortedSubjects.forEach(s => {
-          const opt = document.createElement('option');
-          opt.value = s;
-          opt.textContent = s;
-          subjectSelect.appendChild(opt);
-        });
-
-        subjectSelect.value = currentVal;
-      }
     }
 
     // 필터 드롭다운 옵션 동적 채우기
@@ -2335,7 +2306,8 @@
       const fClass = document.getElementById('filterColClass').value;
       const fSubClassSelect = document.getElementById('filterColSubClass');
       const fSubClass = fSubClassSelect ? fSubClassSelect.value.trim() : '';
-      const fSubject = document.getElementById('filterColSubject').value.trim();
+      const fSubjectSelect = document.getElementById('filterColSubject');
+      const fSubject = fSubjectSelect ? fSubjectSelect.value.trim() : '';
       const fOrigTeacher = document.getElementById('filterColOrigTeacher').value.trim().toLowerCase();
       const fReasonElem = document.getElementById('filterColReason');
       const fReason = fReasonElem ? fReasonElem.value : '';
@@ -2350,7 +2322,8 @@
       const academicUnappliedActive = document.querySelector('.btn-filter-unapplied')?.classList.contains('active');
       const academicPendingActive = document.querySelector('.btn-filter-pending')?.classList.contains('active');
 
-      let filtered = rawAuctions.filter(item => {
+      // 1. 보강 교과 조건 제외 1차 필터링 (필터링된 데이터 기반 교과 드롭다운 옵션 추출용)
+      let subjectFilteredAuctions = rawAuctions.filter(item => {
         // 날짜 기간 필터
         if (startDate && item.date < startDate) return false;
         if (endDate && item.date > endDate) return false;
@@ -2402,15 +2375,46 @@
           if (itemSubClass !== fSubClass && !(item.subClass || '').includes(fSubClass)) return false;
         }
 
-        // 교과 필터
-        if (fSubject && !(item.subject || '').includes(fSubject)) return false;
-
         // 원교사 검색
         if (fOrigTeacher && !item.originalTeacher.toLowerCase().includes(fOrigTeacher)) return false;
 
         // 사유 필터
         if (fReason && item.reason !== fReason) return false;
 
+        return true;
+      });
+
+      // 2. 필터링된 데이터(subjectFilteredAuctions)에 기록된 교과만으로 옵션 동적 갱신 ('태그관리' 미사용)
+      if (fSubjectSelect) {
+        const currentVal = fSubjectSelect.value;
+        const uniqueSubjectsSet = new Set();
+
+        subjectFilteredAuctions.forEach(r => {
+          if (r.subject && r.subject.trim() !== '' && r.subject.trim() !== '-') {
+            uniqueSubjectsSet.add(r.subject.trim());
+          }
+        });
+
+        if (currentVal && currentVal.trim() !== '') {
+          uniqueSubjectsSet.add(currentVal.trim());
+        }
+
+        const sortedSubjects = Array.from(uniqueSubjectsSet).sort((a, b) => a.localeCompare(b, 'ko'));
+
+        fSubjectSelect.innerHTML = '<option value="">전체 교과</option>';
+        sortedSubjects.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          fSubjectSelect.appendChild(opt);
+        });
+
+        fSubjectSelect.value = currentVal;
+      }
+
+      // 3. 최종 보강 교과 조건까지 반영하여 결과 리스트 생성
+      let filtered = subjectFilteredAuctions.filter(item => {
+        if (fSubject && !(item.subject || '').includes(fSubject)) return false;
         return true;
       });
 
